@@ -1,0 +1,291 @@
+---
+title: data.table reverse dependency checks
+output: html_document
+---
+
+```{r Ropts, echo=FALSE}
+options(width=200)
+knitr::opts_chunk$set(
+  echo=FALSE,
+  results="asis")
+```
+
+```{r results=TRUE}
+suppressMessages({
+  if(!requireNamespace("nc"))install.packages("nc")
+  if(!requireNamespace("slurm")){
+    install.packages("~/R/slurm", repos=NULL)
+  }
+  library(data.table)
+})
+job.dir <- readLines("JOBDIR",n=1)
+job.date <- basename(job.dir)
+deps.dt <- data.table::fread(file.path(job.dir, "deps.csv"))
+JOBID.file <- file.path(job.dir, "JOBID")
+JOBID <- readLines(JOBID.file, n=1)
+sacct.arg <- paste0("-j", JOBID)
+sacct.dt <- slurm::sacct(sacct.arg)
+some.sacct <- sacct.dt[, .(
+  task, time=Elapsed, MB=round(megabytes), State=State_blank
+)]
+deps.sacct <- some.sacct[deps.dt, on=.(task=task.id)]
+dt.tar.gz.vec <- Sys.glob(file.path(job.dir, "*.tar.gz"))
+dt.version.vec <- gsub(".tar.gz$|.*data.table_", "", dt.tar.gz.vec)
+
+## Read all logs.
+log.file.glob <- file.path(
+  job.dir, "packages", "*", "log.txt")
+grep.dep.cmd <- paste(
+  "grep '^also installing the dependencies'",
+  log.file.glob)
+grep.dep.out <- system(grep.dep.cmd, intern=TRUE)
+log.pattern <- list(
+  log.txt=list(
+    ".*/",
+    checked=".*?",
+    "/log.txt"),
+  ":")
+grep.dep.dt <- nc::capture_first_vec(
+  grep.dep.out,
+  log.pattern,
+  "also installing the dependencies ",
+  deps.str=".*")
+also.dt <- nc::capture_all_str(
+  grep.dep.dt$deps.str,
+  "'",
+  dep=".*?",
+  "'")
+also.counts <- also.dt[, .(downloads=.N), by=dep][order(-downloads)]
+if(FALSE){
+  data.table::fwrite(also.counts[1:200], "popular_deps.csv")
+}
+
+## Read all diffs.
+diff.file.vec <- Sys.glob(file.path(
+  job.dir, "packages", "*", "*", "significant_differences.csv"))
+sig.diff.wide <- data.table(diff.csv=diff.file.vec)[, {
+  fread(diff.csv)
+}, by=diff.csv]
+Rvers.pattern <- list(
+  job.dir,
+  "/packages/",
+  Package=".*?",
+  "/",
+  Rvers=".*?",
+  "/")
+sig.cols <- c(
+  "first.bad.commit",
+  "Package", "checking", "Rvers",
+  "comments",
+  "CRAN", "release", "master")
+sig.diff.dt <- nc::capture_first_df(
+  sig.diff.wide, diff.csv=Rvers.pattern
+)[, sig.cols, with=FALSE]
+setkeyv(sig.diff.dt, sig.cols)
+deps.sacct[, sig.diffs := NA_integer_]
+deps.sacct[sig.diff.dt, sig.diffs := .N, by=Package, on=.(Package)]
+deps.sacct[is.na(sig.diffs), sig.diffs := 0]
+
+## add number of missing check logs.
+check.file.glob <- file.path(
+  job.dir, "packages", "*", "*", "*", "00check.log")
+check.file.vec <- Sys.glob(check.file.glob)
+check.file.meta <- nc::capture_first_vec(
+  check.file.vec,
+  check.log=list(
+    Rvers.pattern,
+    dt.version=".*?",
+    "/00check.log"))
+CJ.args <- lapply(check.file.meta[, .(Rvers, dt.version)], unique)
+CJ.args$Package <- deps.dt$Package
+select.dt <- do.call(CJ, CJ.args)
+expected.checks <- check.file.meta[select.dt, on=names(select.dt)]
+expected.checks[, dt.vers := sub("_.*", "", dt.version)]
+expected.checks[, log.txt := file.path(job.dir, "packages", Package, "log.txt")]
+missing.logs <- expected.checks[is.na(check.log)]
+deps.sacct[, no.log := NA_integer_]
+deps.sacct[missing.logs, no.log := .N, by=Package, on=.(Package)]
+deps.sacct[is.na(no.log), no.log := 0]
+
+## report versions used.
+pvers <- function(what, ver.vec){
+  cat(what, "versions checked:\n")
+  print(ver.vec)
+}
+pvers("R", unique(check.file.meta$Rvers))
+pvers("data.table", dt.version.vec)
+
+## add counts of config and dl failed.
+grep.config.fail <- paste(
+  "grep 'configuration failed for package'",
+  log.file.glob)
+config.fail.vec <- system(grep.config.fail, intern=TRUE)
+deps.sacct[, config.fail := NA_integer_]
+if(length(config.fail.vec)){
+  config.fail.uniq <- unique(config.fail.vec)
+  config.fail.dt <- nc::capture_first_vec(
+    config.fail.uniq,
+    log.pattern,
+    "ERROR: configuration failed for package '",
+    failed=".*?",
+    "'")
+  config.fail.first <- config.fail.dt[, .SD[1], by=failed]
+  deps.sacct[
+    config.fail.dt,
+    config.fail := .N,
+    by=Package,
+    on=.(Package=checked)]
+}else{
+  config.fail.first <- data.table(Package=character())
+}
+deps.sacct[is.na(config.fail), config.fail := 0]
+grep.dl.fail <- paste(
+  "grep 'download of package.*failed'",
+  log.file.glob)
+dl.fail.vec <- suppressWarnings({
+  system(grep.dl.fail, intern=TRUE)
+})
+deps.sacct[, dl.fail := NA_integer_]
+if(length(dl.fail.vec)){
+  dl.fail.dt <- nc::capture_first_vec(
+    dl.fail.vec,
+    log.pattern,
+    ".*?download of package '",
+    failed=".*?",
+    "' failed")
+  deps.sacct[dl.fail.dt, dl.fail := .N, by=Package, on=.(Package=checked)]
+}
+deps.sacct[is.na(dl.fail), dl.fail := 0]
+
+## copy log files from scratch to projects/analyze subdir.
+log.file.vec <- Sys.glob(log.file.glob)
+log.pkg <- basename(dirname(log.file.vec))
+analyze.dir <- file.path("analyze", job.date)
+dir.create(analyze.dir, showWarnings=FALSE)
+pkg.txt.vec <- file.path(analyze.dir, paste0(log.pkg, ".txt"))
+copied <- file.copy(log.file.vec, pkg.txt.vec)
+ahref <- function(href, text){
+  sprintf('<a href="%s">%s</a>', href, text)
+}
+mytab <- function(DT){
+  copied <- data.table(DT)
+  if("CRAN" %in% names(copied)){
+    copied[, CRAN := ahref(sprintf(
+      "https://cloud.r-project.org/web/checks/check_results_%s.html",
+      Package),
+      CRAN)]
+  }
+  if("first.bad.commit" %in% names(copied)){
+    copied[, first.bad.commit := paste(ahref(paste0(
+      "https://github.com/Rdatatable/data.table/commit/",
+      first.bad.commit),
+      first.bad.commit),
+      comments)]
+    copied[, comments := NULL]
+    copied[, Rvers := gsub(
+      "_", " ", sub("R_Under_development_|R_version_", "", Rvers))]
+  }
+  copied[, Package := ahref(paste0(
+    Package, ".txt"),
+    Package)]
+  knitr::kable(copied)
+}
+
+count.dt <- deps.sacct[, .(
+  dep.pkgs=.N
+), keyby=.(
+  COMPLETED=State=="COMPLETED",
+  diffs=sig.diffs>0,
+  fail=config.fail|dl.fail
+)]
+digits.pattern <- list("[0-9]{2}", as.integer)
+time.dt <- nc::capture_first_vec(
+  deps.sacct$time,
+  hours.only=digits.pattern, ":",
+  minutes.only=digits.pattern, ":",
+  seconds.only=digits.pattern
+)[,
+  minutes := hours.only*60 + minutes.only + seconds.only/60
+  ]
+time.wide <- dcast(
+  time.dt,
+  . ~ .,
+  list(min, median, max, sum),
+  value.var="minutes"
+)
+time.tall <- nc::capture_melt_single(
+  time.wide[,-1],
+  "minutes_",
+  stat=".*",
+  value.name="minutes"
+)[, hours := minutes/60][, days := hours/24][]
+source("myStatus.R")#for get_flavor
+```
+
+`r nrow(deps.sacct)` packages checked, time stats:
+
+```{r}
+knitr::kable(time.tall, digits=2)
+```
+
+## `r nrow(sig.diff.dt)` Significant differences found
+
+The table below has one row for each check found to have different
+results when using two versions of `data.table` (master and
+release). The current CRAN result for that check is also shown (using
+linux platform with either `r get_flavor("r-devel")` or `r get_flavor("r-release")`).
+
+```{r}
+mytab(sig.diff.dt)
+```
+
+## `r nrow(config.fail.first)` Configuration failures
+
+failed column shows which package failed to configure/install, and
+Package column shows the log file of the package that was supposed to
+be checked. Each failure is only reported once (only the first log
+with that configuration failure is shown).
+
+```{r}
+mytab(config.fail.first[, .(failed, Package=checked)])
+```
+
+## Longest running jobs
+
+```{r}
+mytab(deps.sacct[order(-time)][1:10])
+```
+
+## Largest memory jobs
+
+```{r}
+mytab(deps.sacct[order(-MB)][1:10])
+```
+
+## Most installed packages
+
+These are the top 10 packages which appeared in "also installing the
+dependencies..." in the logs.
+
+```{r}
+knitr::kable(also.counts[1:min(10,.N)])
+```
+
+## Full list of jobs
+
+```{r}
+mytab(deps.sacct)
+```
+
+## CSV data
+
+```{r}
+fsave <- function(DT, f){
+  out.csv <- paste0(f, ".csv")
+  out.path <- file.path(analyze.dir, out.csv)
+  data.table::fwrite(DT, out.csv)
+  cat('<p>', ahref(out.csv, f), '</p>\n')
+}
+fsave(deps.sacct, "full_list_of_jobs")
+fsave(sig.diff.dt, "significant_differences")
+```

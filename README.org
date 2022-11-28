@@ -1,0 +1,26 @@
+data.table Reverse Dependency Checks
+
+This is code for checking all reverse dependencies of R package
+data.table. It is designed to be run in the context of a [[SLURM][SLURM]] cluster
+such as [[https://in.nau.edu/arc/details/][Monsoon]] at Northern Arizona University.
+
+** Overview of scripts
+
+[[file:params.R]] launches the revdep checks, by first building data.table
+from github master, and optionally rebuilding R itself, then
+- using sbatch with a job array, each task for a different revdep to
+  check via [[file:check_one.R]]
+- using sbatch with --depend=afterany:JOBID to run [[file:analyze.R]] to
+  make the [[output web page][output web page]] after all the checks finish.
+- using sbatch with --begin=tomorrow at 00:01 to run [[file:params.R]]
+  again, which will start the checks tomorrow.
+
+** Software required
+
+The scripts are currently highly specific to data.table and to the NAU
+Monsoon cluster. System libraries required to build R packages are
+installed in my conda environment and/or home directory.
+
+** Testing status
+
+This software is highly experimental and has not been extensively tested. 
