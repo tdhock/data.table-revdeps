@@ -157,6 +157,17 @@ if(length(dl.fail.vec)){
 }
 deps.sacct[is.na(dl.fail), dl.fail := 0]
 
+## Add column to show if diff is new since last run.
+sig_diff_files <- grep(
+  job.date,
+  Sys.glob("analyze/*/significant_differences.csv"),
+  invert=TRUE, value=TRUE)
+prev.sig_diff.csv <- sig_diff_files[length(sig_diff_files)]
+prev.sig_diff.dt <- fread(prev.sig_diff.csv)
+sig.diff.dt[, new := "NEW!"]
+sig.diff.dt[prev.sig_diff.dt, new := "", on=.(
+  Package, checking, Rvers, release, master)]
+
 ## copy log files from scratch to projects/analyze subdir.
 log.file.vec <- Sys.glob(log.file.glob)
 log.pkg <- basename(dirname(log.file.vec))
@@ -283,7 +294,7 @@ mytab(deps.sacct)
 fsave <- function(DT, f){
   out.csv <- paste0(f, ".csv")
   out.path <- file.path(analyze.dir, out.csv)
-  data.table::fwrite(DT, out.csv)
+  data.table::fwrite(DT, out.path)
   cat('<p>', ahref(out.csv, f), '</p>\n')
 }
 fsave(deps.sacct, "full_list_of_jobs")
