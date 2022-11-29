@@ -11,7 +11,7 @@ from github master, and optionally rebuilding R itself, then
 - using sbatch with a job array, each task for a different revdep to
   check via [[file:check_one.R]]
 - using sbatch with --depend=afterany:JOBID to run [[file:analyze.R]] to
-  make the [[output web page][output web page]] after all the checks finish.
+  make the [[https://rcdata.nau.edu/genomic-ml/data.table-revdeps/analyze/][output web page]] after all the checks finish.
 - using sbatch with --begin=tomorrow at 00:01 to run [[file:params.R]]
   again, which will start the checks tomorrow.
 
