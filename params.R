@@ -265,7 +265,10 @@ params_sh_contents = paste0("#!/bin/bash
 cd ~/genomic-ml/data.table-revdeps
 ", env.setup, " /packages/R/4.1.2/bin/R --no-save < ",
 "params.R | tee params.teeout\n")
-cat(params_sh_contents, file="~/bin/params.sh")
-##system("sbatch params.sh")#now re-launched via crontab.
-##system("crontab -l")
+params_sh <- "~/bin/params.sh"
+cat(params_sh_contents, file=params_sh)
+crontab.line <- system("crontab -l|grep params.sh",intern=TRUE)
 ##1 0 * * * bash ~/bin/params.sh
+if(length(crontab.line)==0){
+  system(paste("sbatch", params_sh))#now re-launched via crontab.
+}
