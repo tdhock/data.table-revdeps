@@ -60,6 +60,11 @@ build.modules <- c(sf="gdal", runjags="jags", Rmpi="openmpi", "anaconda3")
 load.vec <- paste("module load", build.modules, "&&")
 load.str <- paste(load.vec, collapse=" ")
 (env.setup <- paste(load.str, "conda activate emacs1 &&"))
+path.cmd <- paste(env.setup, "echo $PATH")
+path.str <- system(path.cmd,intern=TRUE)
+path.vec <- strsplit(path.str, ":")[[1]]
+openmpi.bin <- grep('openmpi', path.vec, value=TRUE)
+openmpi.dir <- dirname(openmpi.bin)
 
 ## Build R-devel and R-release.
 rebuild.R <- TRUE
@@ -130,12 +135,13 @@ for(R.i in seq_along(R.vec)){
       R.e('install.packages("RQuantLib")')#works if we have quantlib, but conda install quantlib hangs. ./configure --with-boost-include=$HOME/.conda/envs/emacs1/include --with-boost-lib=$HOME/.conda/envs/emacs1/lib --prefix=$HOME && make && make install
       R.e('install.packages("gifski")')#works, after install rust to homedir via "curl https://sh.rustup.rs -sSf | sh"
       ## OK ABOVE
-      ##R.e('install.packages("Rmpi")')#system mpi SIGPIPE? need to install on wind.
       ##R.e('install.packages("symengine")')#mpfr installed but cant find, posted https://github.com/symengine/symengine.R/issues/119
     }
+    R.e(sprintf('install.packages("Rmpi",configure.args="--with-mpi=%s")', openmpi.dir))
     R.e('install.packages("RODBC",configure.args="--with-odbc-manager=odbc")')
-    R.e('install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then R CMD INSTALL --configure-args="--with-cplex-dir=/home/th798/cplex" /tmp/th798/56597036/Rtmpgk5GHL/downloaded_packages/Rcplex_0.3-5.tar.gz 
-    R.e('dep <- data.table::fread("popular_deps.csv")$dep;ins <- rownames(installed.packages());some <- dep[!dep %in% ins];install.packages(some)')
+    ##R.e('unlink("~/R/R-devel/library/slam/",rec=TRUE);install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#this fails for some reason, so work-around by installing slam explicitly.
+    R.e('install.packages("slam");install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then R CMD INSTALL --configure-args="--with-cplex-dir=/home/th798/cplex" /tmp/th798/56597036/Rtmpgk5GHL/downloaded_packages/Rcplex_0.3-5.tar.gz 
+    R.e('dep <- read.csv("popular_deps.csv")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %in% ins]);install.packages(some)')
     if(FALSE){
       R.e('install.packages("pak")')
       ## pkg_install complains about private library.
@@ -257,6 +263,7 @@ params_sh_contents = paste0("#!/bin/bash
 #SBATCH --error=params.out
 #SBATCH --begin=", tomorrow.str, "T00:01
 #SBATCH --job-name=params", today.str, "
-", env.setup, "/packages/R/4.1.2/bin/R --vanilla < ", params.R, "\n")
-cat(params_sh_contents, file="params.sh")
-system("sbatch params.sh")
+", env.setup, "/packages/R/4.1.2/bin/R --vanilla < ",
+params.R, "|tee ", sub("R$", "teeout", params.R), "\n")
+cat(params_sh_contents, file="~/bin/params.sh")
+##system("sbatch params.sh")#now re-launched via crontab.
