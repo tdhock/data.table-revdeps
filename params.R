@@ -141,7 +141,7 @@ for(R.i in seq_along(R.vec)){
     R.e('install.packages("RODBC",configure.args="--with-odbc-manager=odbc")')
     ##R.e('unlink("~/R/R-devel/library/slam/",rec=TRUE);install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#this fails for some reason, so work-around by installing slam explicitly.
     R.e('install.packages("slam");install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then R CMD INSTALL --configure-args="--with-cplex-dir=/home/th798/cplex" /tmp/th798/56597036/Rtmpgk5GHL/downloaded_packages/Rcplex_0.3-5.tar.gz 
-    R.e('dep <- read.csv("popular_deps.csv")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %in% ins]);install.packages(some)')
+    R.e('dep <- read.csv("~/genomic-ml/data.table-revdeps/popular_deps.csv")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %in% ins]);install.packages(some)')
     if(FALSE){
       R.e('install.packages("pak")')
       ## pkg_install complains about private library.
