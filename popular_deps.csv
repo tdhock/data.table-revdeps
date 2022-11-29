@@ -1,5 +1,9 @@
 dep,downloads
-nc,NA
+rstanarm,
+hesim,
+ctmm,
+disk.frame,
+nc,
 data.table,2564
 magrittr,2442
 glue,2424
