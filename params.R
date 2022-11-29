@@ -263,7 +263,7 @@ params_sh_contents = paste0("#!/bin/bash
 #SBATCH --error=params.out
 #SBATCH --begin=", tomorrow.str, "T00:01
 #SBATCH --job-name=params", today.str, "
-", env.setup, "/packages/R/4.1.2/bin/R --vanilla < ",
+", env.setup, "/packages/R/4.1.2/bin/R --no-save < ",
 params.R, "|tee ", sub("R$", "teeout", params.R), "\n")
 cat(params_sh_contents, file="~/bin/params.sh")
 ##system("sbatch params.sh")#now re-launched via crontab.
