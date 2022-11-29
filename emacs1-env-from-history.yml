@@ -1,0 +1,51 @@
+name: emacs1
+channels:
+  - defaults
+dependencies:
+  - backports.functools_lru_cache
+  - pandoc
+  - libcurl
+  - texinfo
+  - font-ttf-inconsolata
+  - fontconfig
+  - freetype
+  - xorg-libxau
+  - libgomp
+  - xorg-libx11
+  - libxcb
+  - readline
+  - pango
+  - cairo
+  - xorg-libxt
+  - curl
+  - libtiff
+  - jpeg
+  - xorg-libxrender
+  - xorg-libxext
+  - libxml2
+  - pkg-config
+  - openssl
+  - icu
+  - librsvg
+  - gsl
+  - mpi
+  - av
+  - mysql-devel
+  - netcdf4
+  - fftw
+  - imagemagick
+  - protobuf
+  - jq
+  - pyodbc
+  - mpfr
+  - poppler
+  - libssh
+  - libpq
+  - zeromq
+  - sasl
+  - libxslt
+  - glpk
+  - tesseract
+  - boost
+  - tk
+prefix: /home/th798/.conda/envs/emacs1

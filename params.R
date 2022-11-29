@@ -62,7 +62,11 @@ load.str <- paste(load.vec, collapse=" ")
 (env.setup <- paste(load.str, "conda activate emacs1 &&"))
 
 ## Build R-devel and R-release.
-rebuild.R <- FALSE
+rebuild.R <- TRUE
+R.src.prefix <- "~/R"
+if(rebuild.R){
+  unlink(file.path(R.src.prefix, "R-devel*"), recursive=TRUE)
+}
 banner.lines <- readLines(paste0(cran.url, "banner.shtml"))
 banner.row <- nc::capture_all_str(
   banner.lines,
@@ -72,7 +76,6 @@ banner.row <- nc::capture_all_str(
 R.vec <- c(
   "src/base-prerelease/R-devel.tar.gz",
   banner.row$path)
-R.src.prefix <- "~/R"
 R.ver.vec <- c()
 for(R.i in seq_along(R.vec)){
   path.tar.gz <- R.vec[R.i]
@@ -80,16 +83,9 @@ for(R.i in seq_along(R.vec)){
   R.dir <- sub(".tar.gz", "", R.tar.gz)
   R.ver.path <- normalizePath(
     file.path(R.src.prefix, R.dir))
-  if(rebuild.R){
-    unlink(paste0(R.ver.path, "*"), recursive=TRUE)
-  }
   local.tar.gz <- file.path(R.src.prefix, R.tar.gz)
-  if(!file.exists(local.tar.gz)){
-    R.url <- paste0(cran.url, path.tar.gz)
-    download.file(R.url, local.tar.gz)
-  }
-  includes <- c("$HOME","$CONDA_PREFIX")
-  libs <- c("$HOME/lib","$HOME/lib64","$CONDA_PREFIX/lib")
+  includes <- c("$CONDA_PREFIX","$HOME")
+  libs <- c("$CONDA_PREFIX/lib","$HOME/lib","$HOME/lib64")
   flag <- function(VAR, value.vec, collapse){
     paste0(VAR, '="', paste(value.vec, collapse=collapse), '"')
   }
@@ -108,8 +104,11 @@ for(R.i in seq_along(R.vec)){
       "LDFLAGS",
       paste0("-L", libs, " -Wl,-rpath=", libs),
       " "),
-    './configure --prefix=$HOME && LC_ALL=C make')
-  if(rebuild.R){
+    './configure --prefix=$HOME && make clean && LC_ALL=C make')
+  if(!file.exists(local.tar.gz)){
+    R.url <- paste0(cran.url, path.tar.gz)
+    download.file(R.url, local.tar.gz)
+    cat(build.cmd,"\n")
     system(build.cmd)
     R <- file.path(R.ver.path, "bin", "R")
     R.e <- function(cmd){
@@ -252,7 +251,7 @@ system("sbatch analyze.sh")
 params.R <- normalizePath("params.R", mustWork=TRUE)
 params_sh_contents = paste0("#!/bin/bash
 #SBATCH --time=10:00:00
-#SBATCH --mem=4GB
+#SBATCH --mem=16GB
 #SBATCH --cpus-per-task=1
 #SBATCH --output=params.out
 #SBATCH --error=params.out
