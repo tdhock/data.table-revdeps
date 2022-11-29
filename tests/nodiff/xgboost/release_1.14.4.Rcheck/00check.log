@@ -1,0 +1,241 @@
+* using log directory '/scratch/th798/data.table-revdeps/2022-11-12/tasks/1294/xgboost.Rcheck'
+* using R version 4.2.2 (2022-10-31)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: ASCII
+* checking for file 'xgboost/DESCRIPTION' ... OK
+* checking extension type ... Package
+* this is package 'xgboost' version '1.6.0.1'
+* checking package namespace information ... OK
+* checking package dependencies ... NOTE
+Packages suggested but not available for checking:
+  'DiagrammeR', 'Ckmeans.1d.dp', 'vcd', 'lintr', 'igraph', 'float',
+  'titanic'
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package 'xgboost' can be installed ... OK
+* checking installed package size ... NOTE
+  installed size is 64.1Mb
+  sub-directories of 1Mb or more:
+    libs  63.2Mb
+* checking package directory ... OK
+* checking 'build' directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... NOTE
+Package unavailable to check Rd xrefs: 'DiagrammeR'
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of 'data' directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking line endings in shell scripts ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking line endings in Makefiles ... OK
+* checking compilation flags in Makevars ... OK
+* checking for GNU extensions in Makefiles ... NOTE
+GNU make is a SystemRequirements.
+* checking for portable use of $(BLAS_LIBS) and $(LAPACK_LIBS) ... OK
+* checking use of PKG_*FLAGS in Makefiles ... OK
+* checking compiled code ... OK
+* checking installed files from 'inst/doc' ... OK
+* checking files in 'vignettes' ... OK
+* checking examples ... ERROR
+Running examples in 'xgboost-Ex.R' failed
+The error most likely occurred in:
+
+> ### Name: xgb.ggplot.deepness
+> ### Title: Plot model trees deepness
+> ### Aliases: xgb.ggplot.deepness xgb.plot.deepness
+> 
+> ### ** Examples
+> 
+> 
+> data(agaricus.train, package='xgboost')
+> 
+> # Change max_depth to a higher number to get a more significant result
+> bst <- xgboost(data = agaricus.train$data, label = agaricus.train$label, max_depth = 6,
++                eta = 0.1, nthread = 2, nrounds = 50, objective = "binary:logistic",
++                subsample = 0.5, min_child_weight = 2)
+[1]	train-logloss:0.600003 
+[2]	train-logloss:0.524033 
+[3]	train-logloss:0.459649 
+[4]	train-logloss:0.405417 
+[5]	train-logloss:0.359278 
+[6]	train-logloss:0.319218 
+[7]	train-logloss:0.284446 
+[8]	train-logloss:0.254133 
+[9]	train-logloss:0.227677 
+[10]	train-logloss:0.204192 
+[11]	train-logloss:0.183195 
+[12]	train-logloss:0.164763 
+[13]	train-logloss:0.148895 
+[14]	train-logloss:0.134068 
+[15]	train-logloss:0.121147 
+[16]	train-logloss:0.109301 
+[17]	train-logloss:0.099045 
+[18]	train-logloss:0.089818 
+[19]	train-logloss:0.081742 
+[20]	train-logloss:0.074330 
+[21]	train-logloss:0.067892 
+[22]	train-logloss:0.061658 
+[23]	train-logloss:0.056055 
+[24]	train-logloss:0.050891 
+[25]	train-logloss:0.046377 
+[26]	train-logloss:0.042650 
+[27]	train-logloss:0.038807 
+[28]	train-logloss:0.035790 
+[29]	train-logloss:0.032877 
+[30]	train-logloss:0.030181 
+[31]	train-logloss:0.027812 
+[32]	train-logloss:0.025544 
+[33]	train-logloss:0.023470 
+[34]	train-logloss:0.021666 
+[35]	train-logloss:0.019980 
+[36]	train-logloss:0.018528 
+[37]	train-logloss:0.017192 
+[38]	train-logloss:0.015929 
+[39]	train-logloss:0.014977 
+[40]	train-logloss:0.013998 
+[41]	train-logloss:0.013148 
+[42]	train-logloss:0.012292 
+[43]	train-logloss:0.011556 
+[44]	train-logloss:0.010909 
+[45]	train-logloss:0.010316 
+[46]	train-logloss:0.009684 
+[47]	train-logloss:0.009265 
+[48]	train-logloss:0.008787 
+[49]	train-logloss:0.008370 
+[50]	train-logloss:0.007953 
+> 
+> xgb.plot.deepness(bst)
+Error: igraph package is required for plotting the graph deepness.
+Execution halted
+* checking for unstated dependencies in 'tests' ... OK
+* checking tests ... ERROR
+  Running 'testthat.R'
+Running the tests in 'tests/testthat.R' failed.
+Last 13 lines of output:
+  [11:21:23] WARNING: amalgamation/../src/gbm/gbtree.cc:82: DANGER AHEAD: You have manually specified `updater` parameter. The `tree_method` parameter will be ignored. Incorrect sequence of updaters will produce undefined behavior. For common uses, we recommend using `tree_method` parameter instead.
+  
+  | |         7 | update trees in an existing model                               [11:21:23] WARNING: amalgamation/../src/gbm/gbtree.cc:82: DANGER AHEAD: You have manually specified `updater` parameter. The `tree_method` parameter will be ignored. Incorrect sequence of updaters will produce undefined behavior. For common uses, we recommend using `tree_method` parameter instead.
+  [11:21:23] WARNING: amalgamation/../src/gbm/gbtree.cc:82: DANGER AHEAD: You have manually specified `updater` parameter. The `tree_method` parameter will be ignored. Incorrect sequence of updaters will produce undefined behavior. For common uses, we recommend using `tree_method` parameter instead.
+  [11:21:23] WARNING: amalgamation/../src/gbm/gbtree.cc:82: DANGER AHEAD: You have manually specified `updater` parameter. The `tree_method` parameter will be ignored. Incorrect sequence of updaters will produce undefined behavior. For common uses, we recommend using `tree_method` parameter instead.
+  
+  | |        19 | update trees in an existing model                               
+  v |        22 | update trees in an existing model [0.5s]
+  
+  == Results =====================================================================
+  Duration: 44.4 s
+  
+  [ FAIL 2 | WARN 4 | SKIP 0 | PASS 583 ]
+  Error: Test failures
+  Execution halted
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes in 'inst/doc' ... OK
+* checking running R code from vignettes ... NONE
+  'discoverYourData.Rmd' using 'UTF-8'... OK
+  'xgboostPresentation.Rmd' using 'UTF-8'... OK
+  'xgboostfromJSON.Rmd' using 'UTF-8'... OK
+  'xgboost.Rnw'... OK
+* checking re-building of vignette outputs ... ERROR
+Error(s) in re-building vignettes:
+--- re-building 'discoverYourData.Rmd' using rmarkdown
+Warning in png(..., res = dpi, units = "in") :
+  no png support in this version of R
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Loading required package: xgboost
+Loading required package: Matrix
+Loading required package: data.table
+Loading required package: vcd
+Warning in library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
+  there is no package called 'vcd'
+Installing package into '/scratch/th798/data.table-revdeps/2022-11-12/tasks/1294/xgboost.Rcheck'
+(as 'lib' is unspecified)
+Quitting from lines 28-32 (discoverYourData.Rmd) 
+Error: processing vignette 'discoverYourData.Rmd' failed with diagnostics:
+trying to use CRAN without setting a mirror
+--- failed re-building 'discoverYourData.Rmd'
+
+--- re-building 'xgboostPresentation.Rmd' using rmarkdown
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning in xgb.load(rawVec) :
+  The support for loading raw booster with `xgb.load` will be  discontinued in upcoming release. Use `xgb.load.raw` or  `xgb.unserialize` instead. 
+--- finished re-building 'xgboostPresentation.Rmd'
+
+--- re-building 'xgboostfromJSON.Rmd' using rmarkdown
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Warning: The device 'svg' is not operational; falling back to 'jpeg'.
+Quitting from lines 115-122 (xgboostfromJSON.Rmd) 
+Error: processing vignette 'xgboostfromJSON.Rmd' failed with diagnostics:
+could not find function "fl"
+--- failed re-building 'xgboostfromJSON.Rmd'
+
+--- re-building 'xgboost.Rnw' using knitr
+Loading required package: knitr
+--- finished re-building 'xgboost.Rnw'
+
+SUMMARY: processing the following files failed:
+  'discoverYourData.Rmd' 'xgboostfromJSON.Rmd'
+
+Error: Vignette re-building failed.
+Execution halted
+
+* checking PDF version of manual ... OK
+* DONE
+Status: 3 ERRORs, 4 NOTEs

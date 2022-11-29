@@ -1,0 +1,127 @@
+* using log directory '/scratch/th798/data.table-revdeps/2022-11-12/tasks/753/OmicNavigator.Rcheck'
+* using R version 4.2.2 (2022-10-31)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: ASCII
+* checking for file 'OmicNavigator/DESCRIPTION' ... OK
+* checking extension type ... Package
+* this is package 'OmicNavigator' version '1.11.5'
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... NOTE
+Packages suggested but not available for checking:
+  'faviconPlease', 'opencpu', 'plotly', 'tinytest', 'ttdo', 'UpSetR'
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package 'OmicNavigator' can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... NOTE
+Packages unavailable to check Rd xrefs: 'UpSetR', 'opencpu'
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of 'data' directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking LazyData ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking installed files from 'inst/doc' ... OK
+* checking files in 'vignettes' ... OK
+* checking examples ... ERROR
+Running examples in 'OmicNavigator-Ex.R' failed
+The error most likely occurred in:
+
+> ### Name: getFavicons
+> ### Title: Get favicon URLs for table linkouts
+> ### Aliases: getFavicons
+> 
+> ### ** Examples
+> 
+>   getFavicons("https://reactome.org/content/detail/")
+Error in loadNamespace(x) : there is no package called 'faviconPlease'
+Calls: getFavicons ... loadNamespace -> withRestarts -> withOneRestart -> doWithOneRestart
+Execution halted
+* checking for unstated dependencies in 'tests' ... OK
+* checking tests ... OK
+  Running 'tinytest.R'
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes in 'inst/doc' ... OK
+* checking running R code from vignettes ... ERROR
+Errors in running code in vignettes:
+when running code in 'OmicNavigatorAPI.Rnw'
+  ...
++     plots <- OmicN .... [TRUNCATED] 
+Installing study "ABC" in /tmp/RtmpilXIPL/file24243a4c1cac28
+Exporting study "ABC" as an R package
+Note: No maintainer email was specified. Using the placeholder: Unknown <unknown@unknown>
+Calculating pairwise overlaps. This may take a while...
+Exported study to /tmp/RtmpilXIPL/ONstudyABC
+
+  When sourcing 'OmicNavigatorAPI.R':
+Error: (converted from warning) installation of package '/tmp/RtmpilXIPL/ONstudyABC' had non-zero exit status
+Execution halted
+
+  'OmicNavigatorAPI.Rnw' using 'UTF-8'... failed
+  'OmicNavigatorUsersGuide.Rnw' using 'UTF-8'... OK
+* checking re-building of vignette outputs ... NOTE
+Error(s) in re-building vignettes:
+--- re-building 'OmicNavigatorAPI.Rnw' using Sweave
+OmicNavigator R package version: 1.11.5
+The app is not installed. Install it with installApp()
+Installing study "ABC" in /tmp/RtmpTIGZHn/file2425db4819e0a2
+Exporting study "ABC" as an R package
+Note: No maintainer email was specified. Using the placeholder: Unknown <unknown@unknown>
+Calculating pairwise overlaps. This may take a while...
+Exported study to /tmp/RtmpTIGZHn/ONstudyABC
+
+Error: processing vignette 'OmicNavigatorAPI.Rnw' failed with diagnostics:
+ chunk 3 (label = test-data) 
+Error in utils::install.packages(tmpPkgDir, lib = library, repos = NULL,  : 
+  (converted from warning) installation of package '/tmp/RtmpTIGZHn/ONstudyABC' had non-zero exit status
+
+--- failed re-building 'OmicNavigatorAPI.Rnw'
+
+--- re-building 'OmicNavigatorUsersGuide.Rnw' using Sweave
+Installing study "vignetteExample" in /tmp/RtmpTIGZHn/file2425db2973b83
+Exporting study "vignetteExample" as an R package
+Note: No maintainer email was specified. Using the placeholder: Unknown <unknown@unknown>
+Calculating pairwise overlaps. This may take a while...
+Exported study to /tmp/RtmpTIGZHn/ONstudyvignetteExample
+Success!
+Returning "default" features for modelID "modelThatDoesntExistYet"
+--- finished re-building 'OmicNavigatorUsersGuide.Rnw'
+
+SUMMARY: processing the following file failed:
+  'OmicNavigatorAPI.Rnw'
+
+Error: Vignette re-building failed.
+Execution halted
+
+* checking PDF version of manual ... OK
+* DONE
+Status: 2 ERRORs, 3 NOTEs

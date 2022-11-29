@@ -1,0 +1,14 @@
+.Rhistory
+JOBDIR
+analyze.html
+analyze.out
+analyze.sh
+analyze
+avail.rds
+old
+packages.rds
+params.out
+params.sh
+params.teeout
+*~
+*.tar.gz
