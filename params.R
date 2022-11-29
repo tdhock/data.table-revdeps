@@ -254,7 +254,6 @@ analyze_sh_contents = paste0("#!/bin/bash
 cat(analyze_sh_contents, file="analyze.sh")
 system("sbatch analyze.sh")
 
-params.R <- normalizePath("params.R", mustWork=TRUE)
 params_sh_contents = paste0("#!/bin/bash
 #SBATCH --time=10:00:00
 #SBATCH --mem=16GB
@@ -263,7 +262,10 @@ params_sh_contents = paste0("#!/bin/bash
 #SBATCH --error=params.out
 #SBATCH --begin=", tomorrow.str, "T00:01
 #SBATCH --job-name=params", today.str, "
-", env.setup, "/packages/R/4.1.2/bin/R --no-save < ",
-params.R, "|tee ", sub("R$", "teeout", params.R), "\n")
+cd ~/genomic-ml/data.table-revdeps
+", env.setup, " /packages/R/4.1.2/bin/R --no-save < ",
+"params.R | tee params.teeout\n")
 cat(params_sh_contents, file="~/bin/params.sh")
 ##system("sbatch params.sh")#now re-launched via crontab.
+##system("crontab -l")
+##1 0 * * * bash ~/bin/params.sh
