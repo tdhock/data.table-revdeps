@@ -22,6 +22,13 @@ So that the job is run every day, there are two options
   again, which will start the checks tomorrow (on a compute node, not
   done currently because we use the cron option above instead).
 
+cron runs params.sh with a minimal environment which can be simulated
+for testing purposes via 
+
+#+BEGIN_SRC shell-script
+env -i bash --noprofile --norc ~/bin/params.sh 
+#+END_SRC
+
 ** Software required
 
 The scripts are currently highly specific to data.table and to the NAU
