@@ -202,9 +202,13 @@ for(dep.i in 1:nrow(deps.dt)){
 }
 
 log.txt <- file.path(scratch.dir, "tasks", "%a", "log.txt")
-TMPDIR <- Sys.getenv("TMPDIR")
 tmp.lib <- file.path(
-  TMPDIR, basename(paste(R.ver.vec)), "$SLURM_ARRAY_TASK_ID", "library")
+  "/tmp",
+  USER,
+  "$SLURM_JOB_ID",
+  basename(paste(R.ver.vec)),
+  "$SLURM_ARRAY_TASK_ID",
+  "library")
 R.cmds <- paste(
   env.setup,
   "mkdir -p", tmp.lib, "&&",
@@ -262,6 +266,10 @@ params_sh_contents = paste0("#!/bin/bash
 #SBATCH --error=params.out
 #SBATCH --begin=", tomorrow.str, "T00:01
 #SBATCH --job-name=params", today.str, "
+export HOME=~
+export USER=`whoami`
+. ~/.bashrc
+export
 cd ~/genomic-ml/data.table-revdeps
 ", env.setup, " /packages/R/4.1.2/bin/R --no-save < ",
 "params.R | tee params.teeout\n")
