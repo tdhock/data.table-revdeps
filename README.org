@@ -1,4 +1,4 @@
-data.table Reverse Dependency Checks
+data.table Reverse Dependency (revdep) Checks
 
 This is code for checking all reverse dependencies of R package
 data.table. It is designed to be run in the context of a [[SLURM][SLURM]] cluster
@@ -47,3 +47,11 @@ under $CONDA_PREFIX (for base R).
 ** Testing status
 
 This software is highly experimental and has not been extensively tested. 
+
+** Related work
+
+- [[https://github.com/Rdatatable/data.table/blob/master/.dev/revdep.R]]
+  implements revdep checking for data.table on your local computer.
+- [[https://github.com/r-lib/revdepcheck]] implements revdep
+  checking for any R package (not just data.table), and implements
+  parallel processing for RStudio employees in the AWS cloud.
