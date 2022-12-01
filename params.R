@@ -202,18 +202,21 @@ for(dep.i in 1:nrow(deps.dt)){
 }
 
 log.txt <- file.path(scratch.dir, "tasks", "%a", "log.txt")
-tmp.lib <- file.path(
+task.dir <- file.path(
   "/tmp",
   USER,
   "$SLURM_JOB_ID",
   basename(paste(R.ver.vec)),
-  "$SLURM_ARRAY_TASK_ID",
-  "library")
+  "$SLURM_ARRAY_TASK_ID")  
+tmp.lib <- file.path(task.dir, "library")
+cache.dir <- file.path(task.dir, "R.cache")
 R.cmds <- paste(
   env.setup,
   "mkdir -p", tmp.lib, "&&",
+  "mkdir -p", cache.dir, "&&",
   "LC_ALL=C",
   PKG_CONFIG_PATH,
+  paste0("R_CACHE_ROOTPATH=", cache.dir),
   paste0("R_LIBS_USER=", tmp.lib),
   file.path(R.ver.vec, "bin", "R"),
   "--vanilla",
@@ -238,7 +241,7 @@ run_one_sh = file.path(scratch.dir, "run_one.sh")
 writeLines(run_one_contents, run_one_sh)
 cat(
   "Try a test run:\nSLURM_ARRAY_TASK_ID=",
-  deps.dt[Package=="tidyfast", task.id],
+  deps.dt[Package=="ShinyQuickStarter", task.id],
   " bash ", run_one_sh, "\n", sep="")
 
 sbatch.cmd <- paste("sbatch", run_one_sh)
@@ -272,7 +275,7 @@ export USER=`whoami`
 export
 cd ~/genomic-ml/data.table-revdeps
 ", env.setup, " /packages/R/4.1.2/bin/R --no-save < ",
-"params.R | tee params.teeout\n")
+"params.R 2>&1 | tee params.teeout\n")
 params_sh <- "~/bin/params.sh"
 cat(params_sh_contents, file=params_sh)
 crontab.line <- system("crontab -l|grep params.sh",intern=TRUE)

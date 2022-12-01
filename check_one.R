@@ -14,12 +14,7 @@ if(length(cargs)==0){
 names(cargs) <- c("deps.csv", "task.str", "release", "master")
 dput(cargs)
 task.dir <- dirname(.libPaths()[1])
-## Set R.cache dir under /tmp to avoid spurious errors when many
-## processes are writing under /home at the same time.
-R.cache.dir <- file.path(task.dir, "R.cache")
-dir.create(R.cache.dir, showWarnings=FALSE, recursive=TRUE)
-R.cache::setCacheRootPath(R.cache.dir)
-R.cache::getCachePath()
+if(requireNamespace("R.cache"))R.cache::getCachePath()
 task.id <- as.integer(cargs[["task.str"]])
 deps.df <- read.csv(cargs[["deps.csv"]])
 (rev.dep <- deps.df$Package[task.id])
