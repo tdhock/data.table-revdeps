@@ -66,12 +66,12 @@ diff.file.vec <- Sys.glob(file.path(
 sig.diff.wide <- data.table(diff.csv=diff.file.vec)[, {
   fread(diff.csv)
 }, by=diff.csv]
-Rvers.pattern <- list(
+Rversion.pattern <- list(
   job.dir,
   "/packages/",
   Package=".*?",
   "/",
-  Rvers=".*?",
+  Rversion=".*?",
   "/")
 sig.cols <- c(
   "first.bad.commit",
@@ -79,8 +79,9 @@ sig.cols <- c(
   "comments",
   "CRAN", "release", "master")
 sig.diff.dt <- nc::capture_first_df(
-  sig.diff.wide, diff.csv=Rvers.pattern
-)[, sig.cols, with=FALSE]
+  sig.diff.wide, diff.csv=Rversion.pattern
+)[, Rvers := ifelse(grepl("devel", Rversion), "devel", "release")
+  ][, sig.cols, with=FALSE]
 setkeyv(sig.diff.dt, sig.cols)
 deps.sacct[, sig.diffs := NA_integer_]
 deps.sacct[sig.diff.dt, sig.diffs := .N, by=Package, on=.(Package)]
@@ -93,10 +94,10 @@ check.file.vec <- Sys.glob(check.file.glob)
 check.file.meta <- nc::capture_first_vec(
   check.file.vec,
   check.log=list(
-    Rvers.pattern,
+    Rversion.pattern,
     dt.version=".*?",
     "/00check.log"))
-CJ.args <- lapply(check.file.meta[, .(Rvers, dt.version)], unique)
+CJ.args <- lapply(check.file.meta[, .(Rversion, dt.version)], unique)
 CJ.args$Package <- deps.dt$Package
 select.dt <- do.call(CJ, CJ.args)
 expected.checks <- check.file.meta[select.dt, on=names(select.dt)]
@@ -112,7 +113,7 @@ pvers <- function(what, ver.vec){
   cat(what, "versions checked:\n")
   print(ver.vec)
 }
-pvers("R", unique(check.file.meta$Rvers))
+pvers("R", unique(check.file.meta$Rversion))
 pvers("data.table", dt.version.vec)
 
 ## add counts of config and dl failed.
@@ -193,8 +194,6 @@ mytab <- function(DT){
       first.bad.commit),
       comments)]
     copied[, comments := NULL]
-    copied[, Rvers := gsub(
-      "_", " ", sub("R_Under_development_|R_version_", "", Rvers))]
   }
   copied[, Package := ahref(paste0(
     Package, ".txt"),
