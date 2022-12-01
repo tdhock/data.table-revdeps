@@ -13,6 +13,13 @@ if(length(cargs)==0){
 }
 names(cargs) <- c("deps.csv", "task.str", "release", "master")
 dput(cargs)
+task.dir <- dirname(.libPaths()[1])
+## Set R.cache dir under /tmp to avoid spurious errors when many
+## processes are writing under /home at the same time.
+R.cache.dir <- file.path(task.dir, "R.cache")
+dir.create(R.cache.dir, showWarnings=FALSE, recursive=TRUE)
+R.cache::setCacheRootPath(R.cache.dir)
+R.cache::getCachePath()
 task.id <- as.integer(cargs[["task.str"]])
 deps.df <- read.csv(cargs[["deps.csv"]])
 (rev.dep <- deps.df$Package[task.id])
@@ -74,7 +81,7 @@ library(data.table, lib.loc=R.home("library"))
 ## If there are significant differences, use git bisect to find when
 ## they started.
 if(nrow(sig.diff.dt)){
-  dt.git <- file.path(dirname(.libPaths()[1]), "data.table.git")
+  dt.git <- file.path(task.dir, "data.table.git")
   system(paste("git clone ~/R/data.table", dt.git))
   release.tag <- gsub(".tar.gz|.*_", "", cargs[["release"]])
   merge.base.cmd <- paste(
