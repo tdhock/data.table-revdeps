@@ -118,7 +118,7 @@ for(R.i in seq_along(R.vec)){
     R <- file.path(R.ver.path, "bin", "R")
     R.e <- function(cmd){
       R.cmd <- sprintf(
-        "%s R_LIBS_USER= %s %s -e '%s'",
+        "%s R_LIBS_USER= %s %s -e '%s' 2>&1",
         env.setup,
         PKG_CONFIG_PATH,
         R,
