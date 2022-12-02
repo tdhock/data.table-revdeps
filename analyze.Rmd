@@ -195,6 +195,11 @@ mytab <- function(DT){
       comments)]
     copied[, comments := NULL]
   }
+  for(int.col in c("sig.diffs","no.log","config.fail","dl.fail")){
+    int.value <- copied[[int.col]]
+    chr.value <- ifelse(int.value==0, "", paste(int.value))
+    set(copied, j=int.col, value=chr.value)
+  }
   copied[, Package := ahref(paste0(
     Package, ".txt"),
     Package)]
