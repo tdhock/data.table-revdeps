@@ -253,6 +253,9 @@ The table below has one row for each check found to have different
 results when using two versions of `data.table` (master and
 release). The current CRAN result for that check is also shown (using
 linux platform with either `r get_flavor("r-devel")` or `r get_flavor("r-release")`).
+Instructions about how to interpret and file issues based on these results are
+explained [on a wiki page](https://github.com/Rdatatable/data.table/wiki/Release-management-and-revdep-checks).
+
 
 ```{r}
 mytab(sig.diff.dt)
@@ -260,10 +263,14 @@ mytab(sig.diff.dt)
 
 ## `r nrow(config.fail.first)` Configuration failures
 
-failed column shows which package failed to configure/install, and
-Package column shows the log file of the package that was supposed to
-be checked. Each failure is only reported once (only the first log
-with that configuration failure is shown).
+In the table below, the `failed` column shows which package failed to
+configure/install, and the `Package` column shows the log file of the
+package that was supposed to be checked. Each failure is only reported
+once (only the first log with that configuration failure is
+shown). Ideally this table should be empty, so if there are entries
+here, they should be reported to the maintainer of this revdep check
+system via [this
+issue](https://github.com/Rdatatable/data.table/issues/5546).
 
 ```{r}
 mytab(config.fail.first[, .(failed, Package=checked)])
@@ -271,11 +278,24 @@ mytab(config.fail.first[, .(failed, Package=checked)])
 
 ## Longest running jobs
 
+These are the top 10 packages in terms of time to install, then
+compute checks and git bisect. If any have `State=TIMEOUT` regularly,
+then there are two options to fix:
+
+* check the log, and if there is a lot of time spent installing packages, then this package should be added to [popular_deps.csv](https://github.com/tdhock/data.table-revdeps/blob/master/popular_deps.csv), which will increase time spent installing packages to the shared library prior to launching check jobs, but will decrease the time of each check job that would have had to install the popular packages to the job-specific library.
+* otherwise, if not much time is spent installing packages, then increase the `--time` parameter of the `run_one.sh` script in [params.R](https://github.com/tdhock/data.table-revdeps/blob/master/params.R).
+
 ```{r}
 mytab(deps.sacct[order(-time)][1:10])
 ```
 
 ## Largest memory jobs
+
+These are the top 10 packages in terms of max memory usage in the job
+which installs, then computes checks and git bisect. If any go over
+the max and are killed, then the `--mem` parameter of the `run_one.sh`
+script should be increased in
+[params.R](https://github.com/tdhock/data.table-revdeps/blob/master/params.R).
 
 ```{r}
 mytab(deps.sacct[order(-MB)][1:10])
@@ -284,13 +304,28 @@ mytab(deps.sacct[order(-MB)][1:10])
 ## Most installed packages
 
 These are the top 10 packages which appeared in "also installing the
-dependencies..." in the logs.
+dependencies..." in the logs. Packages in this table should be
+considered for inclusion in
+[popular_deps.csv](https://github.com/tdhock/data.table-revdeps/blob/master/popular_deps.csv),
+which is the list of packages that are installed to the shared
+library, prior to launching the check jobs (each of which has its own
+job-specific library where packages are installed if they are not
+present in the shared library).
 
 ```{r}
 knitr::kable(also.counts[1:min(10,.N)])
 ```
 
 ## Full list of jobs
+
+The table below has a row for every reverse dependency. If any of the
+following are not zero, then there will be an entry in the warnings
+column:
+
+* `sig.diffs`: rows in the significant differences table.
+* `no.log`: missing log files (there could be up to 4).
+* `config.fail`: dependent packages which failed to configure/build.
+* `dl.fail`: packages which failed to download.
 
 ```{r}
 mytab(deps.sacct)
@@ -308,3 +343,8 @@ fsave <- function(DT, f){
 fsave(deps.sacct, "full_list_of_jobs")
 fsave(sig.diff.dt, "significant_differences")
 ```
+
+## Source code
+
+Computed using [code](https://github.com/tdhock/data.table-revdeps)
+written by Toby Dylan Hocking.
