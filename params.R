@@ -127,6 +127,7 @@ for(R.i in seq_along(R.vec)){
       system(R.cmd)
     }
     if(FALSE){
+      ## These are notes for installing some system libraries from source.
       system("cd ~/src/icu && PKG_CONFIG_PATH=$HOME/lib/pkgconfig:$HOME/lib64/pkgconfig:$HOME/.conda/envs/emacs1/lib/pkgconfig ./configure --prefix=$HOME && make && make install")
       system('cd ~/src/rasqual-0.9.33 && LDFLAGS="-L$HOME/.conda/envs/emacs1/lib -Wl,-rpath=$HOME/.conda/envs/emacs1/lib" PKG_CONFIG_PATH=$HOME/lib/pkgconfig:$HOME/lib64/pkgconfig:$HOME/.conda/envs/emacs1/lib/pkgconfig ./configure --prefix=$HOME && make && make install')
       system('cd ~/src/raptor2-2.0.15 && LDFLAGS="-L$HOME/.conda/envs/emacs1/lib -Wl,-rpath=$HOME/.conda/envs/emacs1/lib" PKG_CONFIG_PATH=$HOME/lib/pkgconfig:$HOME/lib64/pkgconfig:$HOME/.conda/envs/emacs1/lib/pkgconfig ./configure --prefix=$HOME && make && make install')
@@ -139,14 +140,8 @@ for(R.i in seq_along(R.vec)){
     }
     R.e(sprintf('install.packages("Rmpi",configure.args="--with-mpi=%s")', openmpi.dir))
     R.e('install.packages("RODBC",configure.args="--with-odbc-manager=odbc")')
-    ##R.e('unlink("~/R/R-devel/library/slam/",rec=TRUE);install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#this fails for some reason, so work-around by installing slam explicitly.
-    R.e('install.packages("slam");install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then R CMD INSTALL --configure-args="--with-cplex-dir=/home/th798/cplex" /tmp/th798/56597036/Rtmpgk5GHL/downloaded_packages/Rcplex_0.3-5.tar.gz 
+    R.e('install.packages("slam");install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
     R.e('dep <- read.csv("~/genomic-ml/data.table-revdeps/popular_deps.csv")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %in% ins]);install.packages(some)')
-    if(FALSE){
-      R.e('install.packages("pak")')
-      ## pkg_install complains about private library.
-      R.e('pak::pkg_install(data.table::fread("popular_deps.csv")$dep)')
-    }
   }
   R.ver.vec[[R.dir]] <- R.ver.path
 }
@@ -250,7 +245,7 @@ JOBID <- gsub("[^0-9]", "", sbatch.out)
 cat(JOBID, "\n", file=file.path(scratch.dir, "JOBID"))
 analyze.R <- normalizePath("analyze.R", mustWork=TRUE)
 analyze_sh_contents = paste0("#!/bin/bash
-#SBATCH --time=2:00:00
+#SBATCH --time=4:00:00
 #SBATCH --mem=4GB
 #SBATCH --cpus-per-task=1
 #SBATCH --output=analyze.out
