@@ -195,10 +195,14 @@ mytab <- function(DT){
       comments)]
     copied[, comments := NULL]
   }
-  for(int.col in c("sig.diffs","no.log","config.fail","dl.fail")){
-    int.value <- copied[[int.col]]
-    chr.value <- ifelse(int.value==0, "", paste(int.value))
-    set(copied, j=int.col, value=chr.value)
+  show.cols <- c("sig.diffs","no.log","config.fail","dl.fail")
+  some.cols <- show.cols[show.cols %in% names(copied)]
+  if(length(some.cols)){
+    int.mat <- as.matrix(copied[, some.cols, with=FALSE])
+    name.mat <- matrix(some.cols, nrow(int.mat), ncol(int.mat), byrow=TRUE)
+    chr.mat <- ifelse(int.mat==0, "", sprintf("%s=%d", name.mat, int.mat))
+    copied[, warnings := apply(chr.mat, 1, paste, collapse=" ")]
+    set(copied, j=some.cols, value=NULL)
   }
   copied[, Package := ahref(paste0(
     Package, ".txt"),
