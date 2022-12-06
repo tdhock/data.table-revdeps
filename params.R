@@ -229,7 +229,7 @@ R.cmds <- paste(
   normalizePath("check_one.R", mustWork=TRUE))
 run_one_contents = paste0("#!/bin/bash
 #SBATCH --array=1-", n.deps, "
-#SBATCH --time=4:00:00
+#SBATCH --time=6:00:00
 #SBATCH --mem=16GB
 #SBATCH --cpus-per-task=1
 #SBATCH --output=", log.txt, "
