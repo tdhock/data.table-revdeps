@@ -5,7 +5,8 @@ index.html <- file.path("analyze", job.date, "index.html")
 unlink(index.html)
 file.copy("analyze.html", index.html)
 analyze.dirs <- sort(Sys.glob("analyze/*"), decreasing=TRUE)
-keep.dirs <- analyze.dirs[1:min(7,length(analyze.dirs))]
+max.check.days <- 7
+keep.dirs <- analyze.dirs[1:min(max.check.days,length(analyze.dirs))]
 rm.dirs <- setdiff(analyze.dirs, keep.dirs)
 unlink(rm.dirs, recursive=TRUE)
 system("cd ~/genomic-ml && unpublish_data data.table-revdeps && publish_data data.table-revdeps")

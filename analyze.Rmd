@@ -64,7 +64,7 @@ if(FALSE){
 diff.file.vec <- Sys.glob(file.path(
   job.dir, "packages", "*", "*", "significant_differences.csv"))
 sig.diff.wide <- data.table(diff.csv=diff.file.vec)[, {
-  fread(diff.csv)
+  fread(diff.csv)[!is.na(checking)]
 }, by=diff.csv]
 Rversion.pattern <- list(
   job.dir,
@@ -165,9 +165,11 @@ sig_diff_files <- grep(
   invert=TRUE, value=TRUE)
 prev.sig_diff.csv <- sig_diff_files[length(sig_diff_files)]
 prev.sig_diff.dt <- fread(prev.sig_diff.csv)
+diff.join.cols <- c(
+  "Package", "checking", "Rvers", "release", "master")
+newly.fixed <- prev.sig_diff.dt[!sig.diff.dt, on=diff.join.cols]
 sig.diff.dt[, new := "NEW!"]
-sig.diff.dt[prev.sig_diff.dt, new := "", on=.(
-  Package, checking, Rvers, release, master)]
+sig.diff.dt[prev.sig_diff.dt, new := "", on=diff.join.cols]
 
 ## copy log files from scratch to projects/analyze subdir.
 log.file.vec <- Sys.glob(log.file.glob)
@@ -259,6 +261,15 @@ explained [on a wiki page](https://github.com/Rdatatable/data.table/wiki/Release
 
 ```{r}
 mytab(sig.diff.dt)
+```
+
+## `r nrow(newly.fixed)` significant differences fixed since last check
+
+The significant differences below were found in the last check, `r prev.sig_diff.csv` but are no longer present in the current check above. 
+If they are really fixed, then please search for the corresponding [issue](https://github.com/Rdatatable/data.table/issues) and close it.
+
+```{r}
+mytab(newly.fixed)
 ```
 
 ## `r nrow(config.fail.first)` Configuration failures
