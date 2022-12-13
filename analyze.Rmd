@@ -63,8 +63,9 @@ if(FALSE){
 ## Read all diffs.
 diff.file.vec <- Sys.glob(file.path(
   job.dir, "packages", "*", "*", "significant_differences.csv"))
+diff.file.cols <- names(fread(diff.file.vec[1], nrows=0))
 sig.diff.wide <- data.table(diff.csv=diff.file.vec)[, {
-  fread(diff.csv)[!is.na(checking)]
+  fread(diff.csv, colClasses=list(character=diff.file.cols))
 }, by=diff.csv]
 Rversion.pattern <- list(
   job.dir,
