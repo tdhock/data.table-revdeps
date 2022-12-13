@@ -11,6 +11,10 @@ knitr::opts_chunk$set(
 ```
 
 ```{r results=TRUE}
+plural <- function(number, singular){
+  s <- ifelse(number==1, "", "s")
+  sprintf("%d %s%s", number, singular, s)
+}
 suppressMessages({
   if(!requireNamespace("nc"))install.packages("nc")
   if(!requireNamespace("slurm")){
@@ -246,13 +250,13 @@ time.tall <- nc::capture_melt_single(
 source("myStatus.R")#for get_flavor
 ```
 
-`r nrow(deps.sacct)` packages checked, time stats:
+`r plural(nrow(deps.sacct), "package")` checked, time stats:
 
 ```{r}
 knitr::kable(time.tall, digits=2)
 ```
 
-## `r nrow(sig.diff.dt)` Significant differences found
+## `r plural(nrow(sig.diff.dt), "Significant difference")` found
 
 The table below has one row for each check found to have different
 results when using two versions of `data.table` (master and
@@ -266,7 +270,7 @@ explained [on a wiki page](https://github.com/Rdatatable/data.table/wiki/Release
 mytab(sig.diff.dt)
 ```
 
-## `r nrow(newly.fixed)` significant differences fixed since last check
+## `r plural(nrow(newly.fixed), "significant difference")` fixed since last check
 
 The significant differences below were found in the last check, `r prev.sig_diff.csv` but are no longer present in the current check above. 
 If they are really fixed, then please search for the corresponding [issue](https://github.com/Rdatatable/data.table/issues) and close it.
@@ -275,7 +279,7 @@ If they are really fixed, then please search for the corresponding [issue](https
 mytab(newly.fixed)
 ```
 
-## `r nrow(config.fail.first)` Configuration failures
+## `r plural(nrow(config.fail.first), "Configuration failure")`
 
 In the table below, the `failed` column shows which package failed to
 configure/install, and the `Package` column shows the log file of the
