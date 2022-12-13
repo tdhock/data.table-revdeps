@@ -2,8 +2,9 @@ data.table Reverse Dependency (revdep) Checks
 
 This is code for checking all reverse dependencies of R package
 data.table. It is designed to be run in the context of a [[SLURM][SLURM]] cluster
-such as [[https://in.nau.edu/arc/details/][Monsoon]] at Northern Arizona University.
-Results are computed every day and available in the [[https://rcdata.nau.edu/genomic-ml/data.table-revdeps/analyze/][analyze]] dir.
+such as [[https://in.nau.edu/arc/details/][Monsoon]] at Northern Arizona University.  Results are computed
+every day, and results for the past few days are available for
+inspection in the [[https://rcdata.nau.edu/genomic-ml/data.table-revdeps/analyze/][analyze]] directory.
 
 ** Overview of scripts
 
