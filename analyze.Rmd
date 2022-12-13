@@ -121,7 +121,9 @@ pvers("data.table", dt.version.vec)
 grep.config.fail <- paste(
   "grep 'configuration failed for package'",
   log.file.glob)
-config.fail.vec <- system(grep.config.fail, intern=TRUE)
+config.fail.vec <- suppressWarnings({
+  system(grep.config.fail, intern=TRUE)
+})
 deps.sacct[, config.fail := NA_integer_]
 if(length(config.fail.vec)){
   config.fail.uniq <- unique(config.fail.vec)
@@ -138,7 +140,7 @@ if(length(config.fail.vec)){
     by=Package,
     on=.(Package=checked)]
 }else{
-  config.fail.first <- data.table(Package=character())
+  config.fail.first <- data.table(failed=character(), checked=character())
 }
 deps.sacct[is.na(config.fail), config.fail := 0]
 grep.dl.fail <- paste(
