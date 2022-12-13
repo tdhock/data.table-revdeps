@@ -63,6 +63,9 @@ if(nrow(sig.diff.dt)){
   dt.git <- file.path(task.dir, "data.table.git")
   system(paste("git clone ~/R/data.table", dt.git))
   release.tag <- gsub(".tar.gz|.*_", "", cargs[["release"]])
+  rev.parse.cmd <- paste(
+    "cd", dt.git, "&& git rev-parse master")
+  master.sha <- system(rev.parse.cmd, intern=TRUE)
   merge.base.cmd <- paste(
     "cd", dt.git, "&& git merge-base master", release.tag)
   merge.base.sha <- system(merge.base.cmd, intern=TRUE)
@@ -99,6 +102,8 @@ if(nrow(sig.diff.dt)){
     parent.msg <- paste0("parent=", parent.sha)
     this.comment <- if(parent.sha==old.sha){
       paste(parent.msg, "same as git bisect old")
+    }else if(parent.sha==master.sha){
+      paste(parent.msg, "same as git bisect new=master")
     }else{
       parent.msg
     }
