@@ -109,7 +109,8 @@ for(R.i in seq_along(R.vec)){
       "LDFLAGS",
       paste0("-L", libs, " -Wl,-rpath=", libs),
       " "),
-    './configure --prefix=$HOME && make clean && LC_ALL=C make')
+    './configure --prefix=$HOME --enable-memory-profiling',
+    '&& make clean && LC_ALL=C make')
   if(!file.exists(local.tar.gz)){
     R.url <- paste0(cran.url, path.tar.gz)
     download.file(R.url, local.tar.gz)
