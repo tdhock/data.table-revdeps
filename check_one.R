@@ -102,8 +102,8 @@ if(nrow(sig.diff.dt)){
     parent.msg <- paste0("parent=", parent.sha)
     this.comment <- if(parent.sha==old.sha){
       paste(parent.msg, "same as git bisect old")
-    }else if(parent.sha==master.sha){
-      paste(parent.msg, "same as git bisect new=master")
+    }else if(first.bad.sha==master.sha){
+      paste("same as git bisect new=master,", parent.msg)
     }else{
       parent.msg
     }
