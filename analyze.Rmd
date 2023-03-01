@@ -336,9 +336,10 @@ knitr::kable(also.counts[1:min(10,.N)])
 
 ## Full list of jobs
 
-The table below has a row for every reverse dependency. If any of the
-following are not zero, then there will be an entry in the warnings
-column:
+The SLURM job ID was `r JOBID`, and the task ID is given in the first
+column of the table below, which has a row for every reverse
+dependency. If any of the following are not zero, then there will be
+an entry in the warnings column:
 
 * `sig.diffs`: rows in the significant differences table.
 * `no.log`: missing log files (there could be up to 4).
