@@ -56,7 +56,7 @@ conda.pkgs <- c(
   jqr="jq")
 ## some libraries are installed under $HOME (openssl), some using
 ## module system (gdal), and most others via conda.
-build.modules <- c(sf="gdal", runjags="jags", Rmpi="openmpi", "anaconda3")
+build.modules <- c(sf="gdal/3.3.1", runjags="jags", Rmpi="openmpi", "anaconda3")
 load.vec <- paste("module load", build.modules, "&&")
 load.str <- paste(load.vec, collapse=" ")
 (env.setup <- paste(load.str, "conda activate emacs1 &&"))
