@@ -275,7 +275,7 @@ cd ~/genomic-ml/data.table-revdeps
 params_sh <- "~/bin/params.sh"
 cat(params_sh_contents, file=params_sh)
 crontab.line <- system("crontab -l|grep params.sh",intern=TRUE)
-##1 0 * * * bash ~/bin/params.sh
-if(length(crontab.line)==0){
+##1 0 * * * sbatch ~/bin/params.sh
+if(FALSE){
   system(paste("sbatch", params_sh))#now re-launched via crontab.
 }
