@@ -244,6 +244,7 @@ sbatch.cmd <- paste("sbatch", run_one_sh)
 sbatch.out <- system(sbatch.cmd, intern=TRUE)
 JOBID <- gsub("[^0-9]", "", sbatch.out)
 cat(JOBID, "\n", file=file.path(scratch.dir, "JOBID"))
+cat(Sys.getenv("SLURM_JOB_ID"), "\n", file=file.path(scratch.dir, "PARAMS_ID"))
 analyze.R <- normalizePath("analyze.R", mustWork=TRUE)
 analyze_sh_contents = paste0("#!/bin/bash
 #SBATCH --time=4:00:00

@@ -27,6 +27,8 @@ job.date <- basename(job.dir)
 deps.dt <- data.table::fread(file.path(job.dir, "deps.csv"))
 JOBID.file <- file.path(job.dir, "JOBID")
 JOBID <- readLines(JOBID.file, n=1)
+PARAMS_ID.file <- file.path(job.dir, "PARAMS_ID")
+PARAMS_ID <- readLines(PARAMS_ID.file, n=1)
 sacct.arg <- paste0("-j", JOBID)
 sacct.dt <- slurm::sacct(sacct.arg)
 some.sacct <- sacct.dt[, .(
@@ -336,10 +338,18 @@ knitr::kable(also.counts[1:min(10,.N)])
 
 ## Full list of jobs
 
-The SLURM job ID was `r JOBID`, and the task ID is given in the first
-column of the table below, which has a row for every reverse
-dependency. If any of the following are not zero, then there will be
-an entry in the warnings column:
+The SLURM job IDs were
+
+* `r PARAMS_ID` for `params.sh`, one task for building R and
+  installing popular packages,
+* `r JOBID` for `run_one.sh`, several tasks, one for each revdep,
+  shown in table below, and
+* `r Sys.getenv("SLURM_JOB_ID")` for `analyze.sh`, one task for
+  creating this final report.
+
+The table below has a row for every reverse dependency (SLURM task ID
+is shown in first column). If any of the following are not zero, then
+there will be an entry in the warnings column:
 
 * `sig.diffs`: rows in the significant differences table.
 * `no.log`: missing log files (there could be up to 4).
