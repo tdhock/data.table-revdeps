@@ -1,10 +1,10 @@
 cargs <- commandArgs(trailingOnly=TRUE)
 if(length(cargs)==0){
   cargs <- c(
-    "/scratch/th798/data.table-revdeps/2022-11-23/deps.csv",
-    "675",
-    "/scratch/th798/data.table-revdeps/2022-11-23/data.table_release_1.14.6.tar.gz", 
-    "/scratch/th798/data.table-revdeps/2022-11-23/data.table_master_1.14.7.cb8aeff9453acec878e5ab8515cda0d302c943eb.tar.gz"
+    "/scratch/th798/data.table-revdeps/2023-06-27/deps.csv",
+    "1294",
+    "/scratch/th798/data.table-revdeps/2023-06-27/data.table_release_1.14.8.tar.gz",
+    "/scratch/th798/data.table-revdeps/2023-06-27/data.table_master_1.14.9.88039186915028ab3c93ccfd8e22c0d1c3534b1a.tar.gz"
 )
 }
 names(cargs) <- c("deps.csv", "task.str", "release", "master")
@@ -15,12 +15,12 @@ task.id <- as.integer(cargs[["task.str"]])
 deps.df <- read.csv(cargs[["deps.csv"]])
 (rev.dep <- deps.df$Package[task.id])
 job.dir <- file.path(dirname(cargs[["deps.csv"]]), "tasks", task.id)
-setwd(job.dir)
+setwd(task.dir)
 .libPaths()
 options(repos=c(CRAN="http://cloud.r-project.org"))
 
 install.time <- system.time({
-  install.packages(rev.dep, dep=TRUE)#should we do this for each R version?
+  install.packages(rev.dep, dep=TRUE)
 })
 cat("Time to install revdep:\n")
 print(install.time)
@@ -133,7 +133,8 @@ if(nrow(sig.diff.dt)){
     select.dt <- data.table(flavor, checking)
     details[select.dt, msg, on=.(flavor, checking)]
   }]
-  diffs.csv <- file.path(Rvers, "significant_differences.csv")
+  dir.create(file.path(job.dir, Rvers))
+  diffs.csv <- file.path(job.dir, Rvers, "significant_differences.csv")
   data.table::fwrite(sig.diff.dt, diffs.csv)
   print(sig.diff.dt)
 }
