@@ -85,42 +85,48 @@ sig.cols <- c(
   "Package", "checking", "Rvers",
   "comments",
   "CRAN", "release", "master")
-sig.diff.dt <- nc::capture_first_df(
+sig.diff.all <- nc::capture_first_df(
   sig.diff.wide, diff.csv=Rversion.pattern
-)[, Rvers := ifelse(grepl("devel", Rversion), "devel", "release")
-  ][, sig.cols, with=FALSE]
+)
+sig.diff.dt <- sig.diff.all[
+, Rvers := ifelse(grepl("devel", Rversion), "devel", "release")
+][, sig.cols, with=FALSE]
 setkeyv(sig.diff.dt, sig.cols)
 deps.sacct[, sig.diffs := NA_integer_]
 deps.sacct[sig.diff.dt, sig.diffs := .N, by=Package, on=.(Package)]
 deps.sacct[is.na(sig.diffs), sig.diffs := 0]
 
-## add number of missing check logs.
-check.file.glob <- file.path(
-  job.dir, "packages", "*", "*", "*", "00check.log")
-check.file.vec <- Sys.glob(check.file.glob)
-check.file.meta <- nc::capture_first_vec(
-  check.file.vec,
-  check.log=list(
-    Rversion.pattern,
-    dt.version=".*?",
-    "/00check.log"))
-CJ.args <- lapply(check.file.meta[, .(Rversion, dt.version)], unique)
-CJ.args$Package <- deps.dt$Package
-select.dt <- do.call(CJ, CJ.args)
-expected.checks <- check.file.meta[select.dt, on=names(select.dt)]
-expected.checks[, dt.vers := sub("_.*", "", dt.version)]
-expected.checks[, log.txt := file.path(job.dir, "packages", Package, "log.txt")]
-missing.logs <- expected.checks[is.na(check.log)]
-deps.sacct[, no.log := NA_integer_]
-deps.sacct[missing.logs, no.log := .N, by=Package, on=.(Package)]
-deps.sacct[is.na(no.log), no.log := 0]
+if(FALSE){#TODO need to copy files from /tmp or do this in each task.
+  ## add number of missing check logs.
+  check.file.glob <- file.path(
+    job.dir, "packages", "*", "*", "*", "00check.log")
+  check.file.vec <- Sys.glob(check.file.glob)
+  check.file.meta <- nc::capture_first_vec(
+    check.file.vec,
+    check.log=list(
+      Rversion.pattern,
+      dt.version=".*?",
+      "/00check.log"))
+  CJ.args <- lapply(check.file.meta[, .(Rversion, dt.version)], unique)
+  CJ.args$Package <- deps.dt$Package
+  select.dt <- do.call(CJ, CJ.args)
+  expected.checks <- check.file.meta[select.dt, on=names(select.dt)]
+  expected.checks[, dt.vers := sub("_.*", "", dt.version)]
+  expected.checks[, log.txt := file.path(job.dir, "packages", Package, "log.txt")]
+  missing.logs <- expected.checks[is.na(check.log)]
+  deps.sacct[, no.log := NA_integer_]
+  deps.sacct[missing.logs, no.log := .N, by=Package, on=.(Package)]
+  deps.sacct[is.na(no.log), no.log := 0]
+}
 
 ## report versions used.
 pvers <- function(what, ver.vec){
   cat(what, "versions checked:\n")
   print(ver.vec)
 }
-pvers("R", unique(check.file.meta$Rversion))
+## TODO this will not work if there are no issues:
+R.versions <- unique(sig.diff.all[["Rversion"]])
+pvers("R", R.versions)
 pvers("data.table", dt.version.vec)
 
 ## add counts of config and dl failed.
