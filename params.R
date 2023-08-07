@@ -144,6 +144,8 @@ for(R.i in seq_along(R.vec)){
     R.e('install.packages("slam");install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
     R.e('dep <- read.csv("~/genomic-ml/data.table-revdeps/popular_deps.csv")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %in% ins]);install.packages(some)')
   }
+  R.java.cmd <- paste(R, "CMD javareconf")
+  system(R.java.cmd)
   R.ver.vec[[R.dir]] <- R.ver.path
 }
 
