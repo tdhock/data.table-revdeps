@@ -88,6 +88,7 @@ for(R.i in seq_along(R.vec)){
   R.dir <- sub(".tar.gz", "", R.tar.gz)
   R.ver.path <- normalizePath(
     file.path(R.src.prefix, R.dir))
+  R <- file.path(R.ver.path, "bin", "R")
   local.tar.gz <- file.path(R.src.prefix, R.tar.gz)
   includes <- c("$CONDA_PREFIX","$HOME")
   libs <- c("$CONDA_PREFIX/lib","$HOME/lib","$HOME/lib64")
@@ -116,7 +117,6 @@ for(R.i in seq_along(R.vec)){
     download.file(R.url, local.tar.gz)
     cat(build.cmd,"\n")
     system(build.cmd)
-    R <- file.path(R.ver.path, "bin", "R")
     R.e <- function(cmd){
       R.cmd <- sprintf(
         "%s R_LIBS_USER= %s %s -e '%s' 2>&1",
