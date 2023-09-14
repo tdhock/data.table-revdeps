@@ -18,8 +18,7 @@ from github master, and optionally rebuilding R itself, then
 So that the job is run every day, there are two options
 
 - create a crontab entry which runs params.sh (this is what we do
-  currently, because we want to build R and common/difficult packages
-  such as Rmpi on the login node, not compute node).
+  currently).
 - using sbatch with --begin=tomorrow at 00:01 to run [[file:params.R]]
   again, which will start the checks tomorrow (on a compute node, not
   done currently because we use the cron option above instead).
