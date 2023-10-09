@@ -258,7 +258,10 @@ time.tall <- nc::capture_melt_single(
 source("myStatus.R")#for get_flavor
 ```
 
-`r plural(nrow(deps.sacct), "package")` checked, time stats:
+Time is now 
+`r Sys.time()`, 
+`r plural(nrow(deps.sacct), "revdep")` 
+checked in parallel, time stats:
 
 ```{r}
 knitr::kable(time.tall, digits=2)
