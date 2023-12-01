@@ -278,7 +278,20 @@ explained [on a wiki page](https://github.com/Rdatatable/data.table/wiki/Release
 
 
 ```{r}
-mytab(sig.diff.dt)
+is.ignore <- sig.diff.dt[
+, grepl("same as", first.bad.commit) | master=="OK"
+]
+mytab(sig.diff.dt[!is.ignore])
+```
+
+The table above contains likely issues that need to be fixed. 
+The table below contains significant differences which probably do not need to be fixed (can be ignored), because either
+
+* git bisect found trivial commit (spurious failure / not reproducible), or
+* check using `data.table` master is OK (issue in CRAN `data.table` that has already been fixed).
+
+```{r}
+mytab(sig.diff.dt[is.ignore])
 ```
 
 ## `r plural(nrow(newly.fixed), "significant difference")` fixed since last check
