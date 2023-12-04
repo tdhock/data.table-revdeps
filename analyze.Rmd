@@ -279,7 +279,7 @@ explained [on a wiki page](https://github.com/Rdatatable/data.table/wiki/Release
 
 ```{r}
 is.ignore <- sig.diff.dt[
-, grepl("same as", first.bad.commit) | master=="OK"
+, grepl("same as", comments) | (!is.na(master)&master=="OK")
 ]
 mytab(sig.diff.dt[!is.ignore])
 ```
