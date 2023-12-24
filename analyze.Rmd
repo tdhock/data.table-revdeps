@@ -312,7 +312,7 @@ once (only the first log with that configuration failure is
 shown). Ideally this table should be empty, so if there are entries
 here, they should be reported to the maintainer of this revdep check
 system via [this
-issue](https://github.com/Rdatatable/data.table/issues/5546).
+issue tracker](https://github.com/tdhock/data.table-revdeps/issues).
 
 ```{r}
 mytab(config.fail.first[, .(failed, Package=checked)])
