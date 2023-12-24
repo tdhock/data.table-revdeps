@@ -157,6 +157,7 @@ master.build.cmd <- paste(
   "module load anaconda3 &&",
   "conda activate emacs1 &&",
   R.home("bin/R"), "CMD build", dt.git.dir)
+unlink("data.table*tar.gz")
 system(master.build.cmd)
 master.old <- paste0("data.table_", master.version, ".tar.gz")
 dl.row <- download.packages("data.table", destdir=".")
