@@ -153,6 +153,7 @@ for(R.i in seq_along(R.vec)){
 ## Build vignettes and make sure conda env is activated so pandoc is
 ## available.
 if(!requireNamespace("rmarkdown"))install.packages("rmarkdown")
+if(!requireNamespace("markdown"))install.packages("markdown")
 master.build.cmd <- paste(
   "module load anaconda3 &&",
   "conda activate emacs1 &&",
