@@ -128,8 +128,8 @@ pvers <- function(what, ver.vec){
 R.versions <- unique(sig.diff.all[["Rversion"]])
 pvers("R", R.versions)
 pvers("data.table", dt.version.vec)
-cat("using data.table-revdeps:\n")
-system("git log|head -1")
+revdep.version <- system("git log|head -1", intern=TRUE)
+cat("using data.table-revdeps:", revdep.version, "\n")
 
 ## add counts of config and dl failed.
 grep.config.fail <- paste(
