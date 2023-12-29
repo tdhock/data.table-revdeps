@@ -128,6 +128,7 @@ pvers <- function(what, ver.vec){
 R.versions <- unique(sig.diff.all[["Rversion"]])
 pvers("R", R.versions)
 pvers("data.table", dt.version.vec)
+cat("data.table master is", readLines("data.table_master.git.log"), "\n")
 revdep.version <- system("git log|head -1", intern=TRUE)
 cat("using data.table-revdeps:", revdep.version, "\n")
 

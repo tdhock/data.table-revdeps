@@ -17,6 +17,11 @@ git.cmds <- paste(
   "&& git checkout master && git pull && git log|head -1")
 git.out <- system(git.cmds, intern=TRUE)
 master.sha <- sub("commit ", "", git.out[length(git.out)])
+pretty.cmd <- paste(
+  "cd", dt.git.dir,
+  '&& git log --pretty=format:"%h - %s"|head -1')
+pretty.line <- system(pretty.cmd, intern=TRUE)
+writeLines(pretty.line, "data.table_master.git.log")
 master.desc <- read.dcf(file.path(dt.git.dir, "DESCRIPTION"))
 master.version <- master.desc[, "Version"]
 if(FALSE){
