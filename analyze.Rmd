@@ -132,39 +132,41 @@ cat("data.table master is", readLines("data.table_master.git.log"), "\n")
 revdep.version <- system("git log|head -1", intern=TRUE)
 cat("using data.table-revdeps:", revdep.version, "\n")
 
-## add counts of config and dl failed.
+## add counts of download/installation failed.
 grep.config.fail <- paste(
-  "grep 'configuration failed for package'",
+  "grep -E '(configuration|lazy loading) failed for package'",
   log.file.glob)
 config.fail.vec <- suppressWarnings({
   system(grep.config.fail, intern=TRUE)
 })
-deps.sacct[, config.fail := NA_integer_]
+deps.sacct[, config.fail := 0L]
 if(length(config.fail.vec)){
   config.fail.uniq <- unique(config.fail.vec)
   config.fail.dt <- nc::capture_first_vec(
     config.fail.uniq,
     log.pattern,
-    "ERROR: configuration failed for package '",
+    "ERROR: ",
+    action=".*?",
+    " failed for package '",
     failed=".*?",
     "'")
-  config.fail.first <- config.fail.dt[, .SD[1], by=failed]
+  config.fail.first <- config.fail.dt[, .SD[1, .(checked)], by=.(action, failed)]
   deps.sacct[
     config.fail.dt,
     config.fail := .N,
     by=Package,
     on=.(Package=checked)]
 }else{
-  config.fail.first <- data.table(failed=character(), checked=character())
+  config.fail.first <- data.table(
+    action=character(), failed=character(), checked=character())
 }
-deps.sacct[is.na(config.fail), config.fail := 0]
 grep.dl.fail <- paste(
   "grep 'download of package.*failed'",
   log.file.glob)
 dl.fail.vec <- suppressWarnings({
   system(grep.dl.fail, intern=TRUE)
 })
-deps.sacct[, dl.fail := NA_integer_]
+deps.sacct[, dl.fail := 0L]
 if(length(dl.fail.vec)){
   dl.fail.dt <- nc::capture_first_vec(
     dl.fail.vec,
@@ -174,7 +176,6 @@ if(length(dl.fail.vec)){
     "' failed")
   deps.sacct[dl.fail.dt, dl.fail := .N, by=Package, on=.(Package=checked)]
 }
-deps.sacct[is.na(dl.fail), dl.fail := 0]
 
 ## Add column to show if diff is new since last run.
 sig_diff_files <- grep(
@@ -318,7 +319,7 @@ system via [this
 issue tracker](https://github.com/tdhock/data.table-revdeps/issues).
 
 ```{r}
-mytab(config.fail.first[, .(failed, Package=checked)])
+mytab(config.fail.first[, .(action, failed, Package=checked)])
 ```
 
 ## Longest running jobs
