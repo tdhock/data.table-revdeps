@@ -43,6 +43,7 @@ if(FALSE){
 }
 
 conda.pkgs <- c(
+  tcltk2="tk",
   protolite="protobuf",
   odbc="pyodbc",
   pdftools="poppler",
