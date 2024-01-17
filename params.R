@@ -115,7 +115,11 @@ for(R.i in seq_along(R.vec)){
       "LDFLAGS",
       paste0("-L", libs, " -Wl,-rpath=", libs),
       " "),
-    './configure --prefix=$HOME --enable-memory-profiling',
+    './configure',
+    '--prefix=$HOME',
+    '--enable-memory-profiling',
+    '--with-tcl-config=$CONDA_PREFIX/lib/tclConfig.sh',
+    '--with-tk-config=$CONDA_PREFIX/lib/tkConfig.sh',
     '&& make clean && LC_ALL=C make')
   if(!file.exists(local.tar.gz)){
     R.url <- paste0(cran.url, path.tar.gz)
