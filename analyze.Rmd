@@ -139,28 +139,17 @@ grep.not.avail <- paste(
 not.avail.vec <- suppressWarnings({
   system(grep.not.avail, intern=TRUE)
 })
-test.input <- "
-* checking package dependencies ... ERROR
-Packages required but not available: 'maftools', 'NMF'\n
-Packages suggested but not available for checking:
-  'Biobase', 'Biostrings', 'BSgenome', 'BSgenome.Hsapiens.UCSC.hg19',
-  'GenomicRanges', 'GenSA', 'IRanges'\n
-See section 'The DESCRIPTION file' in the 'Writing R Extensions'
-manual.
-* DONE
-"
-not.avail.pattern <- list(
-  type='.*?',
-  ' but not available',
-  '.*?:',
-  after.colon='(?:.*\n)+?',
-  "[*|\n]")
-nc::capture_all_str(test.input, not.avail.pattern)
 not.avail.parsed <- if(length(not.avail.vec)){
   not.avail.uniq <- unique(not.avail.vec)
   not.avail.dt <- nc::capture_first_vec(
     not.avail.uniq,
     log.pattern)
+  not.avail.pattern <- list(
+    type='.*?',
+    ' but not available',
+    '.*?:',
+    after.colon='(?:.*\n)+?',
+    "[*|\n]")
   not.avail.deps <- not.avail.dt[, nc::capture_all_str(
     log.txt,
     not.avail.pattern),
@@ -168,14 +157,15 @@ not.avail.parsed <- if(length(not.avail.vec)){
   not.avail.deps[after.colon==""]
   not.avail.deps$after.colon
   not.avail.deps[1]
-  unique(not.avail.deps)[, .(deps=paste(nc::capture_all_str(
+  dep.dt <- unique(not.avail.deps)[, nc::capture_all_str(
     after.colon,
     "'",
     dep=".*?",
-    "'")$dep, collapse=", ")),
+    "'"),
     by=.(Package=checked, type)]
+  dep.dt[, .SD[1], by=dep][, .(Package, type, dep)]
 }else{
-  data.table(Package=character(), type=character(), deps=character())
+  data.table(Package=character(), type=character(), dep=character())
 }
 
 ## add counts of download/installation failed.
@@ -371,9 +361,11 @@ mytab(config.fail.first[, .(action, failed, Package=checked)])
 ## `r plural(nrow(not.avail.parsed), "not available dependent package")`
 
 In the table below, we list the packages which should have been
-available during a check, but were not. Ideally this table should be
-empty, so if there are entries here, they should be reported to the
-maintainer of this revdep check system via [this issue
+available during a check, but were not. Each dependent package is only
+reported once (only the first log with that dependent package missing
+is shown). Ideally this table should be empty, so if there are entries
+here, they should be reported to the maintainer of this revdep check
+system via [this issue
 tracker](https://github.com/tdhock/data.table-revdeps/issues).
 
 ```{r}
