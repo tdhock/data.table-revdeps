@@ -17,7 +17,9 @@ deps.df <- read.csv(cargs[["deps.csv"]])
 job.dir <- file.path(dirname(cargs[["deps.csv"]]), "tasks", task.id)
 setwd(task.dir)
 .libPaths()
-options(repos=c(CRAN="http://cloud.r-project.org"))
+options(repos=c(
+  "http://www.bioconductor.org/packages/release/bioc",
+  CRAN="http://cloud.r-project.org"))
 
 install.time <- system.time({
   install.packages(
