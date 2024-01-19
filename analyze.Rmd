@@ -139,6 +139,7 @@ grep.not.avail <- paste(
 not.avail.vec <- suppressWarnings({
   system(grep.not.avail, intern=TRUE)
 })
+deps.sacct[, not.avail := 0L]
 not.avail.parsed <- if(length(not.avail.vec)){
   not.avail.uniq <- unique(not.avail.vec)
   not.avail.dt <- nc::capture_first_vec(
@@ -163,6 +164,7 @@ not.avail.parsed <- if(length(not.avail.vec)){
     dep=".*?",
     "'"),
     by=.(Package=checked, type)]
+  deps.sacct[dep.dt, not.avail := .N, by=Package, on="Package"]
   dep.dt[, .SD[1], by=dep][, .(Package, type, dep)]
 }else{
   data.table(Package=character(), type=character(), dep=character())
@@ -252,7 +254,7 @@ mytab <- function(DT){
       comments)]
     copied[, comments := NULL]
   }
-  show.cols <- c("sig.diffs","no.log","config.fail","dl.fail")
+  show.cols <- c("sig.diffs","no.log","config.fail","dl.fail","not.avail")
   some.cols <- show.cols[show.cols %in% names(copied)]
   if(length(some.cols)){
     int.mat <- as.matrix(copied[, some.cols, with=FALSE])
@@ -429,8 +431,9 @@ there will be an entry in the warnings column:
 
 * `sig.diffs`: rows in the significant differences table.
 * `no.log`: missing log files (there could be up to 4).
-* `config.fail`: dependent packages which failed to configure/build.
+* `config.fail`: dependent packages which failed to configure/build or lazy load.
 * `dl.fail`: packages which failed to download.
+* `not.avail`: dependent packages which were not available for checking.
 
 ```{r}
 mytab(deps.sacct)
