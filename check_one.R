@@ -24,7 +24,10 @@ options(repos=c(
 install.time <- system.time({
   install.packages(
     rev.dep,
-    dependencies = c("Depends", "Imports", "LinkingTo", "Suggests", "Enhances"))
+    dependencies = c(
+      "Depends", "Imports", "LinkingTo",
+      ##"Enhances",#takes too long!
+      "Suggests"))
 })
 cat("Time to install revdep:\n")
 print(install.time)
