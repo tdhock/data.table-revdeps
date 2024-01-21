@@ -22,12 +22,7 @@ options(repos=c(
   CRAN="http://cloud.r-project.org"))
 
 install.time <- system.time({
-  install.packages(
-    rev.dep,
-    dependencies = c(
-      "Depends", "Imports", "LinkingTo",
-      ##"Enhances",#takes too long!
-      "Suggests"))
+  install.packages(rev.dep, dep=TRUE)
 })
 cat("Time to install revdep:\n")
 print(install.time)
