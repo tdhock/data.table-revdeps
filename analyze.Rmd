@@ -164,7 +164,7 @@ not.avail.parsed <- if(length(not.avail.vec)){
     "'"),
     by=.(Package=checked, type)]
   deps.sacct[dep.dt, not.avail := .N, by=Package, on="Package"]
-  dep.dt[, .SD[1], keyby=.(dep, type)][, .(dep, type, Package)]
+  dep.dt[, .SD[1], keyby=.(type, dep)][, .(dep, type, Package)]
 }else{
   data.table(dep=character(), type=character(), Package=character())
 }
