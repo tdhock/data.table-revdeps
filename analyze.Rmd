@@ -146,9 +146,8 @@ not.avail.parsed <- if(length(not.avail.vec)){
     not.avail.uniq,
     log.pattern)
   not.avail.pattern <- list(
-    type='.*?',
-    ' but not available',
-    '.*?:',
+    type='suggested|enhances|required',
+    ' but not available.*?:',
     after.colon='(?:.*\n)+?',
     "[*|\n]")
   not.avail.deps <- not.avail.dt[, nc::capture_all_str(
@@ -165,9 +164,9 @@ not.avail.parsed <- if(length(not.avail.vec)){
     "'"),
     by=.(Package=checked, type)]
   deps.sacct[dep.dt, not.avail := .N, by=Package, on="Package"]
-  dep.dt[, .SD[1], by=dep][, .(Package, type, dep)]
+  dep.dt[, .SD[1], keyby=.(dep, type)][, .(dep, type, Package)]
 }else{
-  data.table(Package=character(), type=character(), dep=character())
+  data.table(dep=character(), type=character(), Package=character())
 }
 
 ## add counts of download/installation failed.
@@ -363,11 +362,11 @@ mytab(config.fail.first[, .(action, failed, Package=checked)])
 ## `r plural(nrow(not.avail.parsed), "not available dependent package")`
 
 In the table below, we list the packages which should have been
-available during a check, but were not. Each dependent package is only
-reported once (only the first log with that dependent package missing
-is shown). Ideally this table should be empty, so if there are entries
-here, they should be reported to the maintainer of this revdep check
-system via [this issue
+available during a check, but were not. Each dependent package and
+type is only reported once (only the first log with that dependent
+package missing, for that type, is shown). Ideally this table should
+be empty, so if there are entries here, they should be reported to the
+maintainer of this revdep check system via [this issue
 tracker](https://github.com/tdhock/data.table-revdeps/issues).
 
 ```{r}
