@@ -62,7 +62,12 @@ conda.pkgs <- c(
   jqr="jq")
 ## some libraries are installed under $HOME (openssl), some using
 ## module system (gdal), and most others via conda.
-build.modules <- c(sf="gdal/3.3.1", runjags="jags", Rmpi="openmpi", "anaconda3")
+build.modules <- c(
+  sf="gdal/3.3.1",
+  runjags="jags",
+  Rmpi="openmpi",
+  "anaconda3",
+  Rfast="gcc")
 load.vec <- paste("module load", build.modules, "&&")
 load.str <- paste(load.vec, collapse=" ")
 (env.setup <- paste(load.str, "conda activate emacs1 &&"))
@@ -153,7 +158,7 @@ for(R.i in seq_along(R.vec)){
     R.e('install.packages("RODBC",configure.args="--with-odbc-manager=odbc")')
     R.e('install.packages("slam");install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
     R.e('dep <- read.csv("~/genomic-ml/data.table-revdeps/popular_deps.csv")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %in% ins]);install.packages(some)')
-    R.e('remotes::install_github("gagolews/stringi")')#https://github.com/tdhock/data.table-revdeps/issues/2#issuecomment-1817292386 installation bug in Nov 2023 CRAN version of stringi, fixed on github.
+    ##R.e('remotes::install_github("gagolews/stringi")')#https://github.com/tdhock/data.table-revdeps/issues/2#issuecomment-1817292386 installation bug in Nov 2023 CRAN version of stringi, fixed on github, also should be fixed on CRAN as of 2023-12-11.
   }
   R.java.cmd <- paste(R, "CMD javareconf")
   system(R.java.cmd)
