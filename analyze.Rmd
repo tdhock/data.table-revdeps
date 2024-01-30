@@ -70,30 +70,38 @@ if(FALSE){
 }
 
 ## Read all diffs.
-diff.file.vec <- Sys.glob(file.path(
-  job.dir, "packages", "*", "*", "significant_differences.csv"))
-diff.file.cols <- names(fread(diff.file.vec[1], nrows=0))
-sig.diff.wide <- data.table(diff.csv=diff.file.vec)[, {
-  fread(diff.csv, colClasses=list(character=diff.file.cols))
-}, by=diff.csv]
-Rversion.pattern <- list(
-  job.dir,
-  "/packages/",
-  Package=".*?",
-  "/",
-  Rversion=".*?",
-  "/")
 sig.cols <- c(
   "first.bad.commit",
   "Package", "checking", "Rvers",
   "comments",
   "CRAN", "release", "master")
-sig.diff.all <- nc::capture_first_df(
-  sig.diff.wide, diff.csv=Rversion.pattern
-)
-sig.diff.dt <- sig.diff.all[
-, Rvers := ifelse(grepl("devel", Rversion), "devel", "release")
-][, sig.cols, with=FALSE]
+diff.file.vec <- Sys.glob(file.path(
+  job.dir, "packages", "*", "*", "significant_differences.csv"))
+sig.diff.dt <- if(length(diff.file.vec)){
+  diff.file.cols <- names(fread(diff.file.vec[1], nrows=0))
+  sig.diff.wide <- data.table(diff.csv=diff.file.vec)[, {
+    fread(diff.csv, colClasses=list(character=diff.file.cols))
+  }, by=diff.csv]
+  Rversion.pattern <- list(
+    job.dir,
+    "/packages/",
+    Package=".*?",
+    "/",
+    Rversion=".*?",
+    "/")
+  sig.diff.all <- nc::capture_first_df(
+    sig.diff.wide, diff.csv=Rversion.pattern
+  )
+  R.versions <- unique(sig.diff.all[["Rversion"]])
+  sig.diff.all[
+  , Rvers := ifelse(grepl("devel", Rversion), "devel", "release")
+  ][, sig.cols, with=FALSE]
+}else{
+  R.versions <- c("release","devel")
+  empty.dt.args <- list()
+  empty.dt.args[sig.cols] <- NA_character_
+  do.call(data.table, empty.dt.args)
+}
 setkeyv(sig.diff.dt, sig.cols)
 deps.sacct[, sig.diffs := NA_integer_]
 deps.sacct[sig.diff.dt, sig.diffs := .N, by=Package, on=.(Package)]
@@ -127,8 +135,6 @@ pvers <- function(what, ver.vec){
   cat(what, "versions checked:\n")
   print(ver.vec)
 }
-## TODO this will not work if there are no issues:
-R.versions <- unique(sig.diff.all[["Rversion"]])
 pvers("R", R.versions)
 pvers("data.table", dt.version.vec)
 cat("data.table master is", readLines("data.table_master.git.log"), "\n")
