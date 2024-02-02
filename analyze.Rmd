@@ -100,9 +100,7 @@ sig.diff.dt <- if(length(diff.file.vec)){
   , Rvers := ifelse(grepl("devel", Rversion), "devel", "release")
   ][, sig.cols, with=FALSE]
 }else{
-  empty.dt.args <- list()
-  empty.dt.args[sig.cols] <- NA_character_
-  do.call(data.table, empty.dt.args)
+  data.table()[, (sig.cols) := character()]
 }
 setkeyv(sig.diff.dt, sig.cols)
 deps.sacct[, sig.diffs := NA_integer_]
