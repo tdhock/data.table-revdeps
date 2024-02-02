@@ -17,8 +17,8 @@ deps.df <- read.csv(cargs[["deps.csv"]])
 job.dir <- file.path(dirname(cargs[["deps.csv"]]), "tasks", task.id)
 setwd(task.dir)
 .libPaths()
-options(repos=c(
-  "http://www.bioconductor.org/packages/release/bioc",
+options(repos=c(#this should be in ~/.Rprofile too.
+  BiocManager::repositories(),
   CRAN="http://cloud.r-project.org"))
 
 install.time <- system.time({
