@@ -127,21 +127,21 @@ for(R.i in seq_along(R.vec)){
     '--with-tcl-config=$CONDA_PREFIX/lib/tclConfig.sh',
     '--with-tk-config=$CONDA_PREFIX/lib/tkConfig.sh',
     '&& make clean && LC_ALL=C make')
+  R.e <- function(cmd){
+    R.cmd <- sprintf(
+      "%s R_LIBS_USER= %s xvfb-run %s -e '%s' 2>&1",
+      env.setup,
+      PKG_CONFIG_PATH,
+      R,
+      cmd)
+    print(R.cmd)
+    system(R.cmd)
+  }
   if(!file.exists(local.tar.gz)){
     R.url <- paste0(cran.url, path.tar.gz)
     download.file(R.url, local.tar.gz)
     cat(build.cmd,"\n")
     system(build.cmd)
-    R.e <- function(cmd){
-      R.cmd <- sprintf(
-        "%s R_LIBS_USER= %s xvfb-run %s -e '%s' 2>&1",
-        env.setup,
-        PKG_CONFIG_PATH,
-        R,
-        cmd)
-      print(R.cmd)
-      system(R.cmd)
-    }
     if(FALSE){
       ## These are notes for installing some system libraries from source.
       system("cd ~/src/icu && PKG_CONFIG_PATH=$HOME/lib/pkgconfig:$HOME/lib64/pkgconfig:$HOME/.conda/envs/emacs1/lib/pkgconfig ./configure --prefix=$HOME && make && make install")
@@ -161,6 +161,7 @@ for(R.i in seq_along(R.vec)){
   }
   R.java.cmd <- paste(R, "CMD javareconf")
   system(R.java.cmd)
+  R.e(sprintf('cat(gsub("[()]", "", gsub(" ", "_", R.version[["version.string"]])), file="R_%s")', if(R.dir=="R-devel")"DEVEL" else "RELEASE"))
   R.ver.vec[[R.dir]] <- R.ver.path
 }
 

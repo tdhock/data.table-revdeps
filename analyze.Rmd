@@ -69,6 +69,10 @@ if(FALSE){
   data.table::fwrite(also.counts[1:200], "popular_deps.csv")
 }
 
+## Read R versions, which should have been written by params.R.
+R.versions <- sapply(c("release","devel"), function(v.lo){
+  readLines(paste0("R_",toupper(v.lo)), warn=FALSE)
+})
 ## Read all diffs.
 sig.cols <- c(
   "first.bad.commit",
@@ -92,12 +96,10 @@ sig.diff.dt <- if(length(diff.file.vec)){
   sig.diff.all <- nc::capture_first_df(
     sig.diff.wide, diff.csv=Rversion.pattern
   )
-  R.versions <- unique(sig.diff.all[["Rversion"]])
   sig.diff.all[
   , Rvers := ifelse(grepl("devel", Rversion), "devel", "release")
   ][, sig.cols, with=FALSE]
 }else{
-  R.versions <- c("release","devel")
   empty.dt.args <- list()
   empty.dt.args[sig.cols] <- NA_character_
   do.call(data.table, empty.dt.args)
