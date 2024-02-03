@@ -157,6 +157,7 @@ for(R.i in seq_along(R.vec)){
     R.e(sprintf('install.packages("Rmpi",configure.args="--with-mpi=%s")', openmpi.dir))
     R.e('install.packages("RODBC",configure.args="--with-odbc-manager=odbc")')
     R.e('install.packages("slam");install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
+    R.e('install.packages("BiocManager")')
     R.e('dep <- read.csv("~/genomic-ml/data.table-revdeps/popular_deps.csv")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %in% ins]);install.packages(some)')#not dep=TRUE since these are deps (not checked) of revdeps (which we check).
   }
   R.java.cmd <- paste(R, "CMD javareconf")
