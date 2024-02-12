@@ -142,26 +142,33 @@ for(R.i in seq_along(R.vec)){
     download.file(R.url, local.tar.gz)
     cat(build.cmd,"\n")
     system(build.cmd)
-    if(FALSE){
-      ## These are notes for installing some system libraries from source.
-      system("cd ~/src/icu && PKG_CONFIG_PATH=$HOME/lib/pkgconfig:$HOME/lib64/pkgconfig:$HOME/.conda/envs/emacs1/lib/pkgconfig ./configure --prefix=$HOME && make && make install")
-      system('cd ~/src/rasqual-0.9.33 && LDFLAGS="-L$HOME/.conda/envs/emacs1/lib -Wl,-rpath=$HOME/.conda/envs/emacs1/lib" PKG_CONFIG_PATH=$HOME/lib/pkgconfig:$HOME/lib64/pkgconfig:$HOME/.conda/envs/emacs1/lib/pkgconfig ./configure --prefix=$HOME && make && make install')
-      system('cd ~/src/raptor2-2.0.15 && LDFLAGS="-L$HOME/.conda/envs/emacs1/lib -Wl,-rpath=$HOME/.conda/envs/emacs1/lib" PKG_CONFIG_PATH=$HOME/lib/pkgconfig:$HOME/lib64/pkgconfig:$HOME/.conda/envs/emacs1/lib/pkgconfig ./configure --prefix=$HOME && make && make install')
-      system('cd ~/redland-1.0.17 && LDFLAGS="-L$HOME/.conda/envs/emacs1/lib -Wl,-rpath=$HOME/.conda/envs/emacs1/lib" PKG_CONFIG_PATH=$HOME/lib/pkgconfig:$HOME/lib64/pkgconfig:$HOME/.conda/envs/emacs1/lib/pkgconfig ./configure --with-mysql=no --with-virtuoso=no --prefix=$HOME && make && make install')
-      R.e('install.packages("redland")')#build icu first https://github.com/unicode-org/icu/releases/tag/release-70-1 from https://download.librdf.org/source/ CFLAGS=-I$HOME/.conda/envs/emacs1/include LDFLAGS="-L$HOME/.conda/envs/emacs1/lib -Wl,-rpath=$HOME/.conda/envs/emacs1/lib" ./configure --prefix=$HOME && make && make install
-      R.e('install.packages("RQuantLib")')#works if we have quantlib, but conda install quantlib hangs. ./configure --with-boost-include=$HOME/.conda/envs/emacs1/include --with-boost-lib=$HOME/.conda/envs/emacs1/lib --prefix=$HOME && make && make install
-      R.e('install.packages("gifski")')#works, after install rust to homedir via "curl https://sh.rustup.rs -sSf | sh"
-      ## OK ABOVE
-      ##R.e('install.packages("symengine")')#mpfr installed but cant find, posted https://github.com/symengine/symengine.R/issues/119
-    }
-    R.e(sprintf('install.packages("Rmpi",configure.args="--with-mpi=%s")', openmpi.dir))
-    R.e('install.packages("RODBC",configure.args="--with-odbc-manager=odbc")')
-    R.e('install.packages("slam");install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
-    R.e('install.packages("BiocManager")')
-    R.e('install.packages("igraph")')#for deps
-    R.e('install.packages("~/R/rigraph",repos=NULL)')#https://github.com/igraph/rigraph/issues/1181
-    R.e('dep <- read.csv("~/genomic-ml/data.table-revdeps/popular_deps.csv")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %in% ins]);install.packages(some)')#not dep=TRUE since these are deps (not checked) of revdeps (which we check).
+    ## these packages need to be installed specially when R is first
+    ## built, but do not need any special update.
+    R.e('install.packages("BiocManager")')#needed for popular deps from bioc.
+    R.e('install.packages("igraph")')#for deps when we do next line.
+    R.e('install.packages("~/R/rigraph",repos=NULL)')#https://github.com/igraph/rigraph/issues/1181 until next CRAN release.
   }
+  if(FALSE){
+    ## These are notes for installing some system libraries from source.
+    system("cd ~/src/icu && PKG_CONFIG_PATH=$HOME/lib/pkgconfig:$HOME/lib64/pkgconfig:$HOME/.conda/envs/emacs1/lib/pkgconfig ./configure --prefix=$HOME && make && make install")
+    system('cd ~/src/rasqual-0.9.33 && LDFLAGS="-L$HOME/.conda/envs/emacs1/lib -Wl,-rpath=$HOME/.conda/envs/emacs1/lib" PKG_CONFIG_PATH=$HOME/lib/pkgconfig:$HOME/lib64/pkgconfig:$HOME/.conda/envs/emacs1/lib/pkgconfig ./configure --prefix=$HOME && make && make install')
+    system('cd ~/src/raptor2-2.0.15 && LDFLAGS="-L$HOME/.conda/envs/emacs1/lib -Wl,-rpath=$HOME/.conda/envs/emacs1/lib" PKG_CONFIG_PATH=$HOME/lib/pkgconfig:$HOME/lib64/pkgconfig:$HOME/.conda/envs/emacs1/lib/pkgconfig ./configure --prefix=$HOME && make && make install')
+    system('cd ~/redland-1.0.17 && LDFLAGS="-L$HOME/.conda/envs/emacs1/lib -Wl,-rpath=$HOME/.conda/envs/emacs1/lib" PKG_CONFIG_PATH=$HOME/lib/pkgconfig:$HOME/lib64/pkgconfig:$HOME/.conda/envs/emacs1/lib/pkgconfig ./configure --with-mysql=no --with-virtuoso=no --prefix=$HOME && make && make install')
+    R.e('install.packages("redland")')#build icu first https://github.com/unicode-org/icu/releases/tag/release-70-1 from https://download.librdf.org/source/ CFLAGS=-I$HOME/.conda/envs/emacs1/include LDFLAGS="-L$HOME/.conda/envs/emacs1/lib -Wl,-rpath=$HOME/.conda/envs/emacs1/lib" ./configure --prefix=$HOME && make && make install
+    R.e('install.packages("RQuantLib")')#works if we have quantlib, but conda install quantlib hangs. ./configure --with-boost-include=$HOME/.conda/envs/emacs1/include --with-boost-lib=$HOME/.conda/envs/emacs1/lib --prefix=$HOME && make && make install
+    R.e('install.packages("gifski")')#works, after install rust to homedir via "curl https://sh.rustup.rs -sSf | sh"
+    ## OK ABOVE
+    ##R.e('install.packages("symengine")')#mpfr installed but cant find, posted https://github.com/symengine/symengine.R/issues/119
+  }
+  ## These packages have special installation procedures, and there
+  ## are not a lot of them, so we can run them for both R
+  ## versions. Will update if there is a new version on CRAN.
+  R.e(sprintf('install.packages("Rmpi",configure.args="--with-mpi=%s")', openmpi.dir))
+  R.e('install.packages("RODBC",configure.args="--with-odbc-manager=odbc")')
+  ##R.e('install.packages("slam");install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
+  R.e('install.packages("slam");install.packages("~/R/Rcplex",repos=NULL,configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
+  R.e('update.packages(ask=FALSE)')
+  R.e('dep <- read.csv("~/genomic-ml/data.table-revdeps/popular_deps.csv")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %in% ins]);install.packages(some)')#not dep=TRUE since these are deps (not checked) of revdeps (which we check).
   R.java.cmd <- paste(R, "CMD javareconf")
   system(R.java.cmd)
   R.e(sprintf('cat(gsub("[()]", "", gsub(" ", "_", R.version[["version.string"]])), file="R_%s")', if(R.dir=="R-devel")"DEVEL" else "RELEASE"))
