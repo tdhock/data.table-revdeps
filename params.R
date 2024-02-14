@@ -129,7 +129,7 @@ for(R.i in seq_along(R.vec)){
     '&& make clean && LC_ALL=C make')
   R.e <- function(cmd){
     R.cmd <- sprintf(
-      "%s R_LIBS_USER= %s xvfb-run %s -e '%s' 2>&1",
+      "%s R_LIBS_USER= %s xvfb-run -d %s -e '%s' 2>&1",
       env.setup,
       PKG_CONFIG_PATH,
       R,
@@ -243,7 +243,7 @@ R.cmds <- paste(
   PKG_CONFIG_PATH,
   paste0("R_CACHE_ROOTPATH=", cache.dir),
   paste0("R_LIBS_USER=", tmp.lib),
-  "xvfb-run",
+  "xvfb-run -d",
   file.path(R.ver.vec, "bin", "R"),
   "--vanilla",
   "--args",
