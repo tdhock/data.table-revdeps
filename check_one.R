@@ -20,12 +20,13 @@ setwd(task.dir)
 options(repos=c(#this should be in ~/.Rprofile too.
   BiocManager::repositories(),
   CRAN="http://cloud.r-project.org"))
-
+print(Sys.time())
 install.time <- system.time({
   install.packages(rev.dep, dep=TRUE)
 })
 cat("Time to install revdep:\n")
 print(install.time)
+print(Sys.time())
 downloaded_packages <- file.path(
   tempdir(),
   "downloaded_packages")
@@ -45,9 +46,12 @@ Rcheck.list <- list()
 for(dt.version.short in c("release", "master")){
   dt.tar.gz <- cargs[[dt.version.short]]
   dt.version <- gsub(".tar.gz|/.*?_", "", dt.tar.gz)
+  print(Sys.time())
   install.packages(dt.tar.gz, repos=NULL)
+  print(Sys.time())
   check.cmd <- get_check_cmd(rev.dep.release.tar.gz)
   system(check.cmd)
+  print(Sys.time())
   dest.Rcheck <- file.path(
     Rvers,
     paste0(dt.version, ".Rcheck"))
