@@ -1,15 +1,15 @@
 cargs <- commandArgs(trailingOnly=TRUE)
 if(length(cargs)==0){
   cargs <- c(
-    "/scratch/th798/data.table-revdeps/2023-06-27/deps.csv",
-    "1294",
-    "/scratch/th798/data.table-revdeps/2023-06-27/data.table_release_1.14.8.tar.gz",
-    "/scratch/th798/data.table-revdeps/2023-06-27/data.table_master_1.14.9.88039186915028ab3c93ccfd8e22c0d1c3534b1a.tar.gz"
+    "/scratch/th798/data.table-revdeps/2024-02-18/deps.csv",
+    "232",
+    "/scratch/th798/data.table-revdeps/2024-02-18/data.table_release_1.15.0.tar.gz",
+    "/scratch/th798/data.table-revdeps/2024-02-18/data.table_master_1.15.99.bf499090c0e6fd5cb492bf8b1603d93c1ee21dfb.tar.gz"
 )
 }
 names(cargs) <- c("deps.csv", "task.str", "release", "master")
 dput(cargs)
-task.dir <- dirname(.libPaths()[1])
+(task.dir <- dirname(.libPaths()[1]))#should be /tmp/th798/slurmid/R-vers
 if(requireNamespace("R.cache"))R.cache::getCachePath()
 task.id <- as.integer(cargs[["task.str"]])
 deps.df <- read.csv(cargs[["deps.csv"]])

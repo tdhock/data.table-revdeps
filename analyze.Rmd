@@ -11,6 +11,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r results=TRUE}
+job.dir <- readLines("JOBDIR",n=1)
+
 plural <- function(number, singular){
   s <- ifelse(number==1, "", "s")
   sprintf("%d %s%s", number, singular, s)
@@ -22,7 +24,6 @@ suppressMessages({
   }
   library(data.table)
 })
-job.dir <- readLines("JOBDIR",n=1)
 job.date <- basename(job.dir)
 deps.dt <- data.table::fread(file.path(job.dir, "deps.csv"))
 JOBID.file <- file.path(job.dir, "JOBID")
@@ -69,9 +70,9 @@ if(FALSE){
   data.table::fwrite(also.counts[1:200], "popular_deps.csv")
 }
 
-## Read R versions, which should have been written by params.R.
-R.versions <- sapply(c("release","devel"), function(v.lo){
-  readLines(paste0("R_",toupper(v.lo)), warn=FALSE)
+## Read R versions, which should have been written to job.dir by params.R.
+R.versions <- sapply(c("devel","release"), function(v.lo){
+  readLines(file.path(job.dir, paste0("R_",toupper(v.lo))), warn=FALSE)
 })
 ## Read all diffs.
 sig.cols <- c(
@@ -229,7 +230,7 @@ sig_diff_files <- grep(
   Sys.glob("analyze/*/significant_differences.csv"),
   invert=TRUE, value=TRUE)
 prev.sig_diff.csv <- sig_diff_files[length(sig_diff_files)]
-prev.sig_diff.dt <- fread(prev.sig_diff.csv)
+prev.sig_diff.dt <- fread(prev.sig_diff.csv, colClasses="character")
 diff.join.cols <- c(
   "Package", "checking", "Rvers", "release", "master")
 newly.fixed <- prev.sig_diff.dt[!sig.diff.dt, on=diff.join.cols]

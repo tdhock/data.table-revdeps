@@ -77,6 +77,20 @@ path.vec <- strsplit(path.str, ":")[[1]]
 openmpi.bin <- grep('openmpi', path.vec, value=TRUE)
 openmpi.dir <- dirname(openmpi.bin)
 
+## create scratch dir.
+now <- Sys.time()
+tomorrow <- now+60*60*24
+today.str <- strftime(now, "%Y-%m-%d")
+tomorrow.str <- strftime(tomorrow, "%Y-%m-%d")
+USER <- Sys.getenv("USER")
+scratch.dir <- file.path(
+  "/scratch",
+  USER,
+  "data.table-revdeps",
+  today.str)
+writeLines(scratch.dir, "JOBDIR")
+dir.create(scratch.dir, showWarnings = FALSE, recursive = TRUE)
+
 ## Build R-devel and R-release.
 rebuild.R <- TRUE
 R.src.prefix <- "~/R"
@@ -171,7 +185,8 @@ for(R.i in seq_along(R.vec)){
   R.e('dep <- read.csv("~/genomic-ml/data.table-revdeps/popular_deps.csv")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %in% ins]);install.packages(some)')#not dep=TRUE since these are deps (not checked) of revdeps (which we check).
   R.java.cmd <- paste(R, "CMD javareconf")
   system(R.java.cmd)
-  R.e(sprintf('cat(gsub("[()]", "", gsub(" ", "_", R.version[["version.string"]])), file="R_%s")', if(R.dir=="R-devel")"DEVEL" else "RELEASE"))
+  R_VERSION <- paste0("R_",if(R.dir=="R-devel")"DEVEL" else "RELEASE")
+  R.e(sprintf('cat(gsub("[()]", "", gsub(" ", "_", R.version[["version.string"]])), file="%s")', file.path(scratch.dir, R_VERSION)))
   R.ver.vec[[R.dir]] <- R.ver.path
 }
 
@@ -189,18 +204,7 @@ dl.row <- download.packages("data.table", destdir=".")
 colnames(dl.row) <- c("pkg", "path")
 release.old <- dl.row[,"path"]
 
-now <- Sys.time()
-tomorrow <- now+60*60*24
-today.str <- strftime(now, "%Y-%m-%d")
-tomorrow.str <- strftime(tomorrow, "%Y-%m-%d")
-USER <- Sys.getenv("USER")
-scratch.dir <- file.path(
-  "/scratch",
-  USER,
-  "data.table-revdeps",
-  today.str)
-writeLines(scratch.dir, "JOBDIR")
-dir.create(scratch.dir, showWarnings = FALSE, recursive = TRUE)
+## copy data table source packages to /scratch
 master.new <- file.path(
   scratch.dir, paste0(
     "data.table_master_", master.version, ".", master.sha, ".tar.gz"))
