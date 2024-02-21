@@ -43,18 +43,30 @@ dt.tar.gz.vec <- Sys.glob(file.path(job.dir, "*.tar.gz"))
 dt.version.vec <- gsub(".tar.gz$|.*data.table_", "", dt.tar.gz.vec)
 
 ## Read all logs.
-log.file.glob <- file.path(
-  job.dir, "packages", "*", "log.txt")
+if(FALSE){
+  log.file.glob <- "analyze/2024-02-20/*.txt"
+  log.pattern <- list(
+    log.txt=list(
+      "analyze/",
+      date=".*?",
+      "/",
+      checked=".*?",
+      ".txt"),
+    ":")
+}else{
+  log.file.glob <- file.path(
+    job.dir, "packages", "*", "log.txt")
+  log.pattern <- list(
+    log.txt=list(
+      ".*/",
+      checked=".*?",
+      "/log.txt"),
+    ":")
+}
 grep.dep.cmd <- paste(
   "grep '^also installing the dependencies'",
   log.file.glob)
 grep.dep.out <- system(grep.dep.cmd, intern=TRUE)
-log.pattern <- list(
-  log.txt=list(
-    ".*/",
-    checked=".*?",
-    "/log.txt"),
-  ":")
 grep.dep.dt <- nc::capture_first_vec(
   grep.dep.out,
   log.pattern,
@@ -65,9 +77,13 @@ also.dt <- nc::capture_all_str(
   "'",
   dep=".*?",
   "'")
+ap <- available.packages()
+ap.dt <- data.table(ap)
+bioc.pkgs <- ap.dt[grepl("bioconductor.org", Repository), Package]
 also.counts <- also.dt[, .(downloads=.N), by=dep][order(-downloads)]
+bioc.counts <- also.counts[bioc.pkgs, on="dep", nomatch=0L][order(-downloads)]
 if(FALSE){
-  data.table::fwrite(also.counts[1:200], "popular_deps.csv")
+  data.table::fwrite(bioc.counts, "popular_deps.csv", append=TRUE)
 }
 
 ## Read R versions, which should have been written to job.dir by params.R.
@@ -425,6 +441,21 @@ present in the shared library).
 
 ```{r}
 knitr::kable(also.counts[1:min(10,.N)])
+```
+
+## Installed packages from Bioconductor
+
+These are the Bioconductor packages which appeared in "also installing the
+dependencies..." in the logs. Packages in this table should be
+considered for inclusion in
+[popular_deps.csv](https://github.com/tdhock/data.table-revdeps/blob/master/popular_deps.csv),
+which is the list of packages that are installed to the shared
+library, prior to launching the check jobs (each of which has its own
+job-specific library where packages are installed if they are not
+present in the shared library).
+
+```{r}
+knitr::kable(bioc.counts)
 ```
 
 ## Full list of jobs
