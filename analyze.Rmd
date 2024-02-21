@@ -51,8 +51,7 @@ if(FALSE){
       date=".*?",
       "/",
       checked=".*?",
-      ".txt"),
-    ":")
+      ".txt"))
 }else{
   log.file.glob <- file.path(
     job.dir, "packages", "*", "log.txt")
@@ -60,28 +59,40 @@ if(FALSE){
     log.txt=list(
       ".*/",
       checked=".*?",
-      "/log.txt"),
-    ":")
+      "/log.txt"))
 }
-grep.dep.cmd <- paste(
-  "grep '^also installing the dependencies'",
-  log.file.glob)
-grep.dep.out <- system(grep.dep.cmd, intern=TRUE)
-grep.dep.dt <- nc::capture_first_vec(
-  grep.dep.out,
-  log.pattern,
-  "also installing the dependencies ",
-  deps.str=".*")
-also.dt <- nc::capture_all_str(
-  grep.dep.dt$deps.str,
-  "'",
-  dep=".*?",
-  "'")
-ap <- available.packages()
-ap.dt <- data.table(ap)
-bioc.pkgs <- ap.dt[grepl("bioconductor.org", Repository), Package]
-also.counts <- also.dt[, .(downloads=.N), by=dep][order(-downloads)]
-bioc.counts <- also.counts[bioc.pkgs, on="dep", nomatch=0L][order(-downloads)]
+get.dl.table <- function(f){
+  also.dl <- nc::capture_all_str(
+    f,
+    "also installing the.*\n",
+    downloads=list(
+      "(?:.*\n)*?"
+    ),
+    "[*]")
+  dl.text <- if(nrow(also.dl))also.dl[["downloads"]] else " "
+  nc::capture_all_str(
+    dl.text,
+    "trying URL '",
+    prefix=".*",
+    "/",
+    file=list(
+      Package=".*?",
+      "_",
+      version=".*?",
+      "[.]tar[.]gz"
+    ),
+    "'\nContent type 'application/x-gzip' length ",
+    bytes="[0-9]+", as.integer)
+}  
+also.dt <- nc::capture_first_glob(log.file.glob, log.pattern, READ=get.dl.table)
+also.counts <- also.dt[!is.na(Package), .(
+  downloads=.N
+), by=.(
+  Package, version,
+  kilobytes=prettyNum(as.integer(bytes/1024), big.mark=","),
+  prefix
+)][order(-downloads)]
+bioc.counts <- also.counts[grepl("bioconductor.org", prefix)]
 if(FALSE){
   data.table::fwrite(bioc.counts, "popular_deps.csv", append=TRUE)
 }
@@ -258,7 +269,7 @@ log.file.vec <- Sys.glob(log.file.glob)
 log.pkg <- basename(dirname(log.file.vec))
 deps.sacct[
   log.pkg,
-  log.disk.KB := file.size(log.file.vec)/1024,
+  log.disk.KB := as.integer(file.size(log.file.vec)/1024),
   on="Package"]
 analyze.dir <- file.path("analyze", job.date)
 dir.create(analyze.dir, showWarnings=FALSE)
@@ -440,7 +451,7 @@ job-specific library where packages are installed if they are not
 present in the shared library).
 
 ```{r}
-knitr::kable(also.counts[1:min(10,.N)])
+knitr::kable(also.counts[1:min(10,.N)], align="r")
 ```
 
 ## Installed packages from Bioconductor
@@ -455,7 +466,7 @@ job-specific library where packages are installed if they are not
 present in the shared library).
 
 ```{r}
-knitr::kable(bioc.counts)
+knitr::kable(bioc.counts, align="r")
 ```
 
 ## Full list of jobs
