@@ -219,7 +219,7 @@ if(length(config.fail.vec)){
   config.fail.dt <- nc::capture_first_vec(
     config.fail.uniq,
     log.pattern,
-    "ERROR: ",
+    ":ERROR: ",
     action=".*?",
     " failed for package '",
     failed=".*?",

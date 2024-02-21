@@ -9,6 +9,6 @@ max.check.days <- 7
 keep.dirs <- analyze.dirs[1:min(max.check.days,length(analyze.dirs))]
 (rm.dirs <- setdiff(analyze.dirs, keep.dirs))
 unlink(rm.dirs, recursive=TRUE)
-system("cd ~/genomic-ml && unpublish_data data.table-revdeps && publish_data data.table-revdeps")
+system("cd /projects/genomic-ml && unpublish_data data.table-revdeps && publish_data data.table-revdeps")
 unlink("/scratch/th798/data.table-revdeps/*", recursive=TRUE)
 
