@@ -73,8 +73,8 @@ get.dl.table <- function(f){
   nc::capture_all_str(
     dl.text,
     "trying URL '",
-    prefix=".*",
-    "/",
+    repos=".*",
+    "/src/contrib/",
     file=list(
       Package=".*?",
       "_",
@@ -85,14 +85,26 @@ get.dl.table <- function(f){
     bytes="[0-9]+", as.integer)
 }  
 also.dt <- nc::capture_first_glob(log.file.glob, log.pattern, READ=get.dl.table)
+myRound <- function(x){
+  prettyNum(ceiling(x), big.mark=",")
+}
 also.counts <- also.dt[!is.na(Package), .(
   downloads=.N
 ), by=.(
   Package, version,
-  kilobytes=prettyNum(as.integer(bytes/1024), big.mark=","),
-  prefix
-)][order(-downloads)]
-bioc.counts <- also.counts[grepl("bioconductor.org", prefix)]
+  kilobytes=bytes/1024,
+  repos
+)][
+, megabytes := downloads*kilobytes/1024
+][
+  order(-megabytes)
+][,`:=`(
+  KB.per.dl=myRound(kilobytes),
+  MB.bandwidth=myRound(megabytes),
+  kilobytes=NULL,
+  megabytes=NULL
+)][]
+(bioc.counts <- also.counts[grepl("bioconductor.org", repos)])
 if(FALSE){
   data.table::fwrite(bioc.counts, "popular_deps.csv", append=TRUE)
 }
@@ -442,7 +454,8 @@ mytab(deps.sacct[order(-check.memory.MB)][1:10])
 ## Most installed packages
 
 These are the top 10 packages which appeared in "also installing the
-dependencies..." in the logs. Packages in this table should be
+dependencies..." in the logs, in terms of total download bandwidth,
+and number of times downloaded. Packages in this table should be
 considered for inclusion in
 [popular_deps.csv](https://github.com/tdhock/data.table-revdeps/blob/master/popular_deps.csv),
 which is the list of packages that are installed to the shared
@@ -452,6 +465,10 @@ present in the shared library).
 
 ```{r}
 knitr::kable(also.counts[1:min(10,.N)], align="r")
+```
+
+```{r}
+knitr::kable(also.counts[order(-downloads)][1:min(10,.N)], align="r")
 ```
 
 ## Installed packages from Bioconductor
