@@ -12,6 +12,8 @@ deps = tools::package_dependencies(
   recursive=FALSE
 )[[1]]
 dt.git.dir <- "~/R/data.table"
+popular_deps.csv <- "~/genomic-ml/data.table-revdeps/popular_deps.csv"
+popular_deps <- fread(popular_deps.csv)
 git.cmds <- paste(
   "cd", dt.git.dir,
   "&& git checkout master && git pull && git log|head -1")
@@ -90,13 +92,9 @@ scratch.dir <- file.path(
   today.str)
 writeLines(scratch.dir, "JOBDIR")
 dir.create(scratch.dir, showWarnings = FALSE, recursive = TRUE)
+R.src.prefix <- "~/R"
 
 ## Build R-devel and R-release.
-rebuild.R <- TRUE
-R.src.prefix <- "~/R"
-if(rebuild.R){
-  unlink(file.path(R.src.prefix, "R-devel*"), recursive=TRUE)
-}
 banner.lines <- readLines(paste0(cran.url, "banner.shtml"))
 banner.row <- nc::capture_all_str(
   banner.lines,
@@ -104,17 +102,19 @@ banner.row <- nc::capture_all_str(
   path='.*?tar[.]gz',
   '"')
 R.vec <- c(
-  "src/base-prerelease/R-devel.tar.gz",
-  banner.row$path)
+  devel="src/base-prerelease/R-devel.tar.gz",
+  release=banner.row$path)
 R.ver.vec <- c()
 for(R.i in seq_along(R.vec)){
   path.tar.gz <- R.vec[R.i]
-  R.tar.gz <- basename(path.tar.gz)
-  R.dir <- sub(".tar.gz", "", R.tar.gz)
+  version.lower <- names(path.tar.gz)
+  rebuild.R <- if(interactive())FALSE else version.lower=="devel"
+  R.tar.gz <- basename(path.tar.gz) 
+  R.dir <- paste0("R-", version.lower)
+  R.dir.orig <- sub(".tar.gz", "", R.tar.gz)
   R.ver.path <- normalizePath(
     file.path(R.src.prefix, R.dir))
   R <- file.path(R.ver.path, "bin", "R")
-  local.tar.gz <- file.path(R.src.prefix, R.tar.gz)
   includes <- c("$CONDA_PREFIX","$HOME")
   libs <- c("$CONDA_PREFIX/lib","$HOME/lib","$HOME/lib64")
   flag <- function(VAR, value.vec, collapse){
@@ -124,6 +124,7 @@ for(R.i in seq_along(R.vec)){
     env.setup,
     "cd", R.src.prefix,
     "&& tar xf", R.tar.gz,
+    "&& mv", R.dir.orig, R.dir,
     "&& cd", R.dir,
     '&&',
     ## flag("FC", "$CONDA_PREFIX/bin/gfortran", ""),
@@ -151,16 +152,27 @@ for(R.i in seq_along(R.vec)){
     print(R.cmd)
     system(R.cmd)
   }
-  if(!file.exists(local.tar.gz)){
+  if(rebuild.R){
+    ## first save popular packages.
+    pop.lib.vec <- file.path(R.ver.path, "library", popular_deps$dep)
+    library.save <- file.path(R.src.prefix, "library-save", version.lower)
+    dir.create(library.save, showWarnings = FALSE, recursive = TRUE)
+    pop.save.vec <- file.path(library.save, popular_deps$dep)
+    file.rename(pop.lib.vec, pop.save.vec)
+    ## Then delete old base R source.
+    unlink(local.tar.gz)
+    unlink(R.ver.path, recursive = TRUE)
+    ## Then download base R source and build.
     R.url <- paste0(cran.url, path.tar.gz)
+    local.tar.gz <- file.path(R.src.prefix, R.tar.gz)
     download.file(R.url, local.tar.gz)
     cat(build.cmd,"\n")
     system(build.cmd)
+    ## Then restore saved packages.
+    file.rename(pop.save.vec, pop.lib.vec)
     ## these packages need to be installed specially when R is first
     ## built, but do not need any special update.
     R.e('install.packages("BiocManager")')#needed for popular deps from bioc.
-    R.e('install.packages("igraph")')#for deps when we do next line.
-    R.e('install.packages("~/R/rigraph",repos=NULL)')#https://github.com/igraph/rigraph/issues/1181 until next CRAN release.
   }
   if(FALSE){
     ## These are notes for installing some system libraries from source.
@@ -182,10 +194,10 @@ for(R.i in seq_along(R.vec)){
   ##R.e('install.packages("slam");install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
   R.e('install.packages("slam");install.packages("~/R/Rcplex",repos=NULL,configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
   R.e('update.packages(ask=FALSE)')
-  R.e('dep <- read.csv("~/genomic-ml/data.table-revdeps/popular_deps.csv")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %in% ins]);install.packages(some)')#not dep=TRUE since these are deps (not checked) of revdeps (which we check).
+  R.e(sprintf('dep <- read.csv("%s")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %%in%% ins]);install.packages(some)', popular_deps.csv))#not dep=TRUE since these are deps (not checked) of revdeps (which we check).
   R.java.cmd <- paste(R, "CMD javareconf")
   system(R.java.cmd)
-  R_VERSION <- paste0("R_",if(R.dir=="R-devel")"DEVEL" else "RELEASE")
+  R_VERSION <- paste0("R_",toupper(version.lower))
   R.e(sprintf('cat(gsub("[()]", "", gsub(" ", "_", R.version[["version.string"]])), file="%s")', file.path(scratch.dir, R_VERSION)))
   R.ver.vec[[R.dir]] <- R.ver.path
 }
