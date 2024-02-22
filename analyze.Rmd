@@ -104,7 +104,7 @@ also.counts <- also.dt[!is.na(Package), .(
   kilobytes=NULL,
   megabytes=NULL
 )][]
-(bioc.counts <- also.counts[grepl("bioconductor.org", repos)])
+bioc.counts <- also.counts[grepl("bioconductor.org", repos)]
 if(FALSE){
   data.table::fwrite(bioc.counts, "popular_deps.csv", append=TRUE)
 }
