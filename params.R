@@ -160,11 +160,11 @@ for(R.i in seq_along(R.vec)){
     pop.save.vec <- file.path(library.save, popular_deps$dep)
     file.rename(pop.lib.vec, pop.save.vec)
     ## Then delete old base R source.
+    local.tar.gz <- file.path(R.src.prefix, R.tar.gz)
     unlink(local.tar.gz)
     unlink(R.ver.path, recursive = TRUE)
     ## Then download base R source and build.
     R.url <- paste0(cran.url, path.tar.gz)
-    local.tar.gz <- file.path(R.src.prefix, R.tar.gz)
     download.file(R.url, local.tar.gz)
     cat(build.cmd,"\n")
     system(build.cmd)
@@ -186,6 +186,7 @@ for(R.i in seq_along(R.vec)){
     ## OK ABOVE
     ##R.e('install.packages("symengine")')#mpfr installed but cant find, posted https://github.com/symengine/symengine.R/issues/119
   }
+  options.repos.bioc <- 'options(repos=c(if(requireNamespace("BiocManager"))BiocManager::repositories(),CRAN="http://cloud.r-project.org"))'
   ## These packages have special installation procedures, and there
   ## are not a lot of them, so we can run them for both R
   ## versions. Will update if there is a new version on CRAN.
@@ -193,8 +194,8 @@ for(R.i in seq_along(R.vec)){
   R.e('install.packages("RODBC",configure.args="--with-odbc-manager=odbc")')
   ##R.e('install.packages("slam");install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
   R.e('install.packages("slam");install.packages("~/R/Rcplex",repos=NULL,configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
-  R.e('update.packages(ask=FALSE)')
-  R.e(sprintf('dep <- read.csv("%s")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %%in%% ins]);install.packages(some)', popular_deps.csv))#not dep=TRUE since these are deps (not checked) of revdeps (which we check).
+  R.e(sprintf('%s;update.packages(ask=FALSE)', options.repos.bioc))
+  R.e(sprintf('%s;dep <- read.csv("%s")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %%in%% ins]);install.packages(some)', options.repos.bioc, popular_deps.csv))#not dep=TRUE since these are deps (not checked) of revdeps (which we check).
   R.java.cmd <- paste(R, "CMD javareconf")
   system(R.java.cmd)
   R_VERSION <- paste0("R_",toupper(version.lower))
