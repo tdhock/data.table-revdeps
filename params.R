@@ -124,7 +124,7 @@ for(R.i in seq_along(R.vec)){
     env.setup,
     "cd", R.src.prefix,
     "&& tar xf", R.tar.gz,
-    "&& mv", R.dir.orig, R.dir,
+    if(R.dir.orig!=R.dir)paste("&& mv", R.dir.orig, R.dir),
     "&& cd", R.dir,
     '&&',
     ## flag("FC", "$CONDA_PREFIX/bin/gfortran", ""),
