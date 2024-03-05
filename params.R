@@ -108,13 +108,23 @@ R.ver.vec <- c()
 for(R.i in seq_along(R.vec)){
   path.tar.gz <- R.vec[R.i]
   version.lower <- names(path.tar.gz)
-  rebuild.R <- if(interactive())FALSE else version.lower=="devel"
   R.tar.gz <- basename(path.tar.gz) 
   R.dir <- paste0("R-", version.lower)
   R.dir.orig <- sub(".tar.gz", "", R.tar.gz)
   R.ver.path <- normalizePath(
     file.path(R.src.prefix, R.dir))
   R <- file.path(R.ver.path, "bin", "R")
+  rebuild.R <- if(interactive()){
+    FALSE
+  }else if(version.lower=="devel"){
+    TRUE
+  }else{
+    R.version.lines <- system(paste(R, "--version"), intern=TRUE)
+    installed.R.vers <- nc::capture_all_str(
+      R.version.lines[2], "^R version ", version=".*?", " [(]"
+    )[, paste0("R-", version)]
+    installed.R.vers != R.dir.orig
+  }
   includes <- c("$CONDA_PREFIX","$HOME")
   libs <- c("$CONDA_PREFIX/lib","$HOME/lib","$HOME/lib64")
   flag <- function(VAR, value.vec, collapse){
