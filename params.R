@@ -231,6 +231,7 @@ release.old <- dl.row[,"path"]
 master.new <- file.path(
   scratch.dir, paste0(
     "data.table_master_", master.version, ".", master.sha, ".tar.gz"))
+if(grepl(" ", master.new))stop(master.new)
 file.copy(master.old, master.new, overwrite=TRUE)
 release.new <- file.path(
   scratch.dir,
