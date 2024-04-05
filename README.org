@@ -17,7 +17,7 @@ from github master, and optionally rebuilding R itself, then
 
 So that the job is run every day, there are two options
 
-- create a crontab entry which runs params.sh (this is what we do
+- create a crontab entry which runs params.sh, which is generated in https://github.com/tdhock/data.table-revdeps/blob/master/params.R#L319 (this is what we do
   currently).
 - using sbatch with --begin=tomorrow at 00:01 to run [[file:params.R]]
   again, which will start the checks tomorrow (on a compute node, not
