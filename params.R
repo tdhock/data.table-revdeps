@@ -3,10 +3,19 @@ if(!requireNamespace("nc"))install.packages("~/R/nc",repo=NULL)
 library(data.table)
 cran.url <- "http://cloud.r-project.org/"
 options(repos=c(CRAN=cran.url))
-avail = available.packages(repos=cran.url)
+avail = available.packages(repos=BiocManager::repositories())
+all.deps = tools::package_dependencies(
+  "data.table",
+  db=avail,
+  reverse=TRUE,
+  recursive=TRUE
+)[[1]]
+is.bioc <- grepl("bioconductor", avail[,"Repository"])
+from.bioc <- avail[is.bioc, "Package"]
+bioc.deps <- intersect(from.bioc, all.deps)
 deps = tools::package_dependencies(
   "data.table",
-  db = avail,  # just CRAN revdeps though (not Bioc) from October 2020
+  db = avail[!is.bioc,],# just CRAN revdeps though (not Bioc) from October 2020
   which="all",
   reverse=TRUE,
   recursive=FALSE
@@ -14,6 +23,8 @@ deps = tools::package_dependencies(
 dt.git.dir <- "~/R/data.table"
 popular_deps.csv <- "~/genomic-ml/data.table-revdeps/popular_deps.csv"
 popular_deps <- fread(popular_deps.csv)
+(popular_deps <- data.table(dep=unique(c(popular_deps$dep, bioc.deps))))
+fwrite(popular_deps,popular_deps.csv)
 git.cmds <- paste(
   "cd", dt.git.dir,
   "&& git checkout master && git pull && git log|head -1")
@@ -206,6 +217,9 @@ for(R.i in seq_along(R.vec)){
   R.e('install.packages("slam");install.packages("~/R/Rcplex",repos=NULL,configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
   R.e(sprintf('%s;update.packages(ask=FALSE)', options.repos.bioc))
   R.e(sprintf('%s;dep <- read.csv("%s")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %%in%% ins]);install.packages(some)', options.repos.bioc, popular_deps.csv))#not dep=TRUE since these are deps (not checked) of revdeps (which we check).
+  if(FALSE){
+    ## install deps from bioc now.
+  }
   R.java.cmd <- paste(R, "CMD javareconf")
   system(R.java.cmd)
   R_VERSION <- paste0("R_",toupper(version.lower))
