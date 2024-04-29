@@ -314,36 +314,59 @@ R.cmds <- paste(
   master.new,
   "<",
   normalizePath("check_one.R", mustWork=TRUE))
-run_one_contents = paste0("#!/bin/bash
-#SBATCH --array=1-", n.deps, "
+large_memory <- fread("large_memory.csv")
+array.mem.dt <- deps.dt[
+, gigabytes := ifelse(Package %in% large_memory$Package, 16, 4)
+][, {
+  d <- diff(gigabytes)!=0
+  is.start <- c(TRUE,d)
+  is.end <- c(d,TRUE)
+  data.table(
+    gigabytes=gigabytes[is.start],
+    start=which(is.start),
+    end=which(is.end))
+}][
+, indices := ifelse(start==end, start, paste0(start,"-",end))
+][, data.table(
+  array=paste(indices,collapse=","),
+  job=NA_character_
+), by=gigabytes]
+for(array.mem.i in 1:nrow(array.mem.dt)){
+  array.mem.row <- array.mem.dt[array.mem.i]
+  run_one_contents = paste0("#!/bin/bash
+#SBATCH --array=", array.mem.row$array, "
 #SBATCH --time=9:00:00
-#SBATCH --mem=16GB
+#SBATCH --mem=", array.mem.row$gigabytes, "GB
 #SBATCH --cpus-per-task=1
 #SBATCH --output=", log.txt, "
 #SBATCH --error=", log.txt, "
 #SBATCH --job-name=dt", today.str, "
 module unload R
 ", paste(R.cmds, collapse="\n"))
-run_one_sh = file.path(scratch.dir, "run_one.sh")
-writeLines(run_one_contents, run_one_sh)
-cat(
-  "Try a test run:\nSLURM_ARRAY_TASK_ID=",
-  deps.dt[Package=="ShinyQuickStarter", task.id],
-  " bash ", run_one_sh, "\n", sep="")
+  run_one_sh = file.path(scratch.dir, sprintf("run_one_%dGB.sh", array.mem.row$gigabytes))
+  writeLines(run_one_contents, run_one_sh)
+  cat(
+    "Try a test run:\nSLURM_ARRAY_TASK_ID=",
+    deps.dt[Package=="ShinyQuickStarter", task.id],
+    " bash ", run_one_sh, "\n", sep="")
+  sbatch.cmd <- paste("sbatch", run_one_sh)
+  sbatch.out <- system(sbatch.cmd, intern=TRUE)
+  JOBID <- gsub("[^0-9]", "", sbatch.out)
+  array.mem.dt[array.mem.i, job := JOBID]
+  cat(JOBID, "\n", file=file.path(scratch.dir, "JOBID"), append=TRUE)
+}
 
-sbatch.cmd <- paste("sbatch", run_one_sh)
-sbatch.out <- system(sbatch.cmd, intern=TRUE)
-JOBID <- gsub("[^0-9]", "", sbatch.out)
-cat(JOBID, "\n", file=file.path(scratch.dir, "JOBID"))
 cat(Sys.getenv("SLURM_JOB_ID"), "\n", file=file.path(scratch.dir, "PARAMS_ID"))
 analyze.R <- normalizePath("analyze.R", mustWork=TRUE)
+## https://hpc.nih.gov/docs/job_dependencies.html
+JOBID.colon <- paste(array.mem.dt$job, collapse=":")
 analyze_sh_contents = paste0("#!/bin/bash
 #SBATCH --time=4:00:00
 #SBATCH --mem=4GB
 #SBATCH --cpus-per-task=1
 #SBATCH --output=analyze.out
 #SBATCH --error=analyze.out
-#SBATCH --depend=afterany:", JOBID, "
+#SBATCH --depend=afterany:", JOBID.colon, "
 #SBATCH --job-name=analyze", today.str, "
 ", env.setup, R.home("bin/R"), " --vanilla < ", analyze.R, "\n")
 cat(analyze_sh_contents, file="analyze.sh")

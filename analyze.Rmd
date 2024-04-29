@@ -27,10 +27,11 @@ suppressMessages({
 job.date <- basename(job.dir)
 deps.dt <- data.table::fread(file.path(job.dir, "deps.csv"))
 JOBID.file <- file.path(job.dir, "JOBID")
-JOBID <- readLines(JOBID.file, n=1)
+JOBID.vec <- gsub(" ", "", readLines(JOBID.file))
 PARAMS_ID.file <- file.path(job.dir, "PARAMS_ID")
 PARAMS_ID <- readLines(PARAMS_ID.file, n=1)
-sacct.arg <- paste0("-j", JOBID)
+JOBID.str <- paste(JOBID.vec, collapse=",")
+sacct.arg <- paste0("-j", JOBID.str)
 sacct.dt <- slurm::sacct(sacct.arg)
 some.sacct <- sacct.dt[, .(
   task,
@@ -492,7 +493,7 @@ The SLURM job IDs were
 
 * `r PARAMS_ID` for `params.sh`, one task for building R and
   installing popular packages,
-* `r JOBID` for `run_one.sh`, several tasks, one for each revdep,
+* `r JOBID.str` for `run_one.sh`, several tasks, one for each revdep,
   shown in table below, and
 * `r Sys.getenv("SLURM_JOB_ID")` for `analyze.sh`, one task for
   creating this final report.
