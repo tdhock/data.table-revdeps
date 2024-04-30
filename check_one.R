@@ -1,10 +1,10 @@
 cargs <- commandArgs(trailingOnly=TRUE)
 if(length(cargs)==0){
   cargs <- c(
-    "/scratch/th798/data.table-revdeps/2024-02-18/deps.csv",
-    "232",
-    "/scratch/th798/data.table-revdeps/2024-02-18/data.table_release_1.15.0.tar.gz",
-    "/scratch/th798/data.table-revdeps/2024-02-18/data.table_master_1.15.99.bf499090c0e6fd5cb492bf8b1603d93c1ee21dfb.tar.gz"
+    "/scratch/th798/data.table-revdeps/2024-04-30/deps.csv",
+    "1425",
+    "/scratch/th798/data.table-revdeps/2024-04-30/data.table_release_1.15.4.tar.gz",
+    "/scratch/th798/data.table-revdeps/2024-04-30/data.table_master_1.15.99.2487c61656335764980e478c323f7e6ce4e6d4ca.tar.gz"
 )
 }
 names(cargs) <- c("deps.csv", "task.str", "release", "master")
