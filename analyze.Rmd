@@ -440,17 +440,27 @@ then there are two options to fix:
 mytab(deps.sacct[order(-check.time)][1:10])
 ```
 
-## Largest memory jobs
+## Largest memory / out of memory jobs
 
-These are the top 10 packages in terms of max memory usage in the job
-which installs, then computes checks and git bisect. If any go over
-the max and are killed, then the `--mem` parameter of the `run_one.sh`
-script should be increased in
-[params.R](https://github.com/tdhock/data.table-revdeps/blob/master/params.R).
+Below are the top 10 packages in terms of max memory usage in the job
+which installs, then computes checks and git bisect. 
 
 ```{r}
 mytab(deps.sacct[order(-check.memory.MB)][1:10])
 ```
+
+Below packages ran out of memory during checks. 
+
+```{r}
+mytab(deps.sacct[State=="OUT_OF_MEMORY"][order(-check.memory.MB)])
+```
+
+If any have State `OUT_OF_MEMORY` then either
+
+* add that package to `large_memory.csv` 
+* or if it is already listed there, then increase the `gigabytes`
+  value in `array.mem.dt` in
+  [params.R](https://github.com/tdhock/data.table-revdeps/blob/master/params.R).
 
 ## Most installed packages
 
