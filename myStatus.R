@@ -1,5 +1,6 @@
 get_check_cmd <- function(pkg.tar.gz){
   paste(
+    "_R_CHECK_TESTS_NLINES_=0",
     "_R_CHECK_FORCE_SUGGESTS_=0",
     R.home("bin/R"),
     "CMD check --timings",
