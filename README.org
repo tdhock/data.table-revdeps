@@ -55,6 +55,20 @@ This software is highly experimental and has not been extensively tested.
 
 - [[https://github.com/Rdatatable/data.table/blob/master/.dev/revdep.R]]
   implements revdep checking for data.table on your local computer.
-- [[https://github.com/r-lib/revdepcheck]] implements revdep
-  checking for any R package (not just data.table), and implements
-  parallel processing for RStudio employees in the AWS cloud.
+- [[https://github.com/r-lib/revdepcheck]] has parallel processing
+  for RStudio employees in the AWS cloud.
+- https://github.com/r-devel/recheck runs on GitHub Actions, avoids
+  long compilation times using pre-built ubuntu binaries of
+  dependencies. 
+- =tools::check_packages_in_dir()= is apparently what is used on CRAN.
+- in the table below "diff" means the software checks for differences
+  in revdep check results, using the CRAN and GitHub versions of your
+  package.
+
+| Method                                | diff | R             | OS             |
+|---------------------------------------+------+---------------+----------------|
+| data.table-revdeps (this repo)        | yes  | release,devel | Monsoon=CentOS |
+| [[https://github.com/Rdatatable/data.table/blob/master/.dev/revdep.R]\]][revdep.R]]                              | ?    | local         | local          |
+| [[https://github.com/r-lib/revdepcheck]\]][revdepcheck]]                           | yes  | local         | local          |
+| [[https://github.com/r-devel/recheck][recheck]]                               | no   | release       | ubuntu:latest  |
+| CRAN =tools::check_packages_in_dir()= | no   | devel         | debian:testing |
