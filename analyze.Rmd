@@ -292,6 +292,10 @@ ahref <- function(href, text){
   sprintf('<a href="%s">%s</a>', href, text)
 }
 mytab <- function(DT){
+  if (!nrow(DT)) {
+    cat("Empty table: nothing to print.\n")
+    return(invisible())
+  }
   copied <- data.table(DT)
   if("CRAN" %in% names(copied)){
     copied[, CRAN := ahref(sprintf(
