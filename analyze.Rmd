@@ -358,7 +358,7 @@ source("myStatus.R")#for get_flavor
 ```
 
 Time is now 
-`r Sys.time()`, 
+`r format(Sys.time(), "%F %T %Z")`, 
 `r plural(nrow(deps.sacct), "revdep")` 
 checked in parallel, time stats:
 
