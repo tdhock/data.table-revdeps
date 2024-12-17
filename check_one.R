@@ -1,11 +1,16 @@
 cargs <- commandArgs(trailingOnly=TRUE)
 if(length(cargs)==0){
+  ## before running interactively, make sure to start emacs/R with
+  ## environment defined in /scratch/...check_one.sh, particularly
+  ## R_LIBS_USER=/tmp/... otherwise we get error when installing
+  ## data.table.
+  base <- "/scratch/th798/data.table-revdeps/*"
   cargs <- c(
-    "/scratch/th798/data.table-revdeps/2024-04-30/deps.csv",
-    "1425",
-    "/scratch/th798/data.table-revdeps/2024-04-30/data.table_release_1.15.4.tar.gz",
-    "/scratch/th798/data.table-revdeps/2024-04-30/data.table_master_1.15.99.2487c61656335764980e478c323f7e6ce4e6d4ca.tar.gz"
-)
+    Sys.glob(file.path(base,"deps.csv")),
+    "349",
+    Sys.glob(file.path(base, "data.table_release_*tar.gz")),
+    Sys.glob(file.path(base, "data.table_master_*tar.gz"))
+  )
 }
 names(cargs) <- c("deps.csv", "task.str", "release", "master")
 dput(cargs)
@@ -66,6 +71,7 @@ library(data.table, lib.loc=R.home("library"))
 ## they started.
 if(nrow(sig.diff.dt)){
   dt.git <- file.path(task.dir, "data.table.git")
+  system(paste("cd ~/R/data.table && git fetch --tags"))
   system(paste("git clone ~/R/data.table", dt.git))
   release.tag <- gsub(".tar.gz|.*_", "", cargs[["release"]])
   rev.parse.cmd <- paste(
@@ -95,24 +101,26 @@ if(nrow(sig.diff.dt)){
     print(bisect.cmd)
     bisect.out <- system(bisect.cmd, intern=TRUE)
     cat(bisect.out,sep="\n")
-    first.bad.sha <- nc::capture_all_str(
-      bisect.out,
-      sha="[0-9a-f]+",
-      " is the first new commit")$sha
-    parent.cmd <- paste(
-      "cd ~/R/data.table && git log --pretty=%P -n 1",
-      first.bad.sha)
-    parent.sha <- system(parent.cmd, intern=TRUE)
-    sig.diff.dt[diff.i, first.bad.commit := first.bad.sha]
-    parent.msg <- paste0("parent=", parent.sha)
-    this.comment <- if(parent.sha==old.sha){
-      paste(parent.msg, "same as git bisect old")
-    }else if(first.bad.sha==master.sha){
-      paste("same as git bisect new=master,", parent.msg)
-    }else{
-      parent.msg
+    if(is.null(attr(bisect.out,"status"))){
+      first.bad.sha <- nc::capture_all_str(
+        bisect.out,
+        sha="[0-9a-f]+",
+        " is the first new commit")$sha
+      parent.cmd <- paste(
+        "cd ~/R/data.table && git log --pretty=%P -n 1",
+        first.bad.sha)
+      parent.sha <- system(parent.cmd, intern=TRUE)
+      sig.diff.dt[diff.i, first.bad.commit := first.bad.sha]
+      parent.msg <- paste0("parent=", parent.sha)
+      this.comment <- if(parent.sha==old.sha){
+        paste(parent.msg, "same as git bisect old")
+      }else if(first.bad.sha==master.sha){
+        paste("same as git bisect new=master,", parent.msg)
+      }else{
+        parent.msg
+      }
+      sig.diff.dt[diff.i, comments := this.comment]
     }
-    sig.diff.dt[diff.i, comments := this.comment]
   }
   ## add CRAN column.
   sig.diff.dt[, CRAN := {
