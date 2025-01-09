@@ -68,7 +68,7 @@ This software is highly experimental and has not been extensively tested.
 | Method                                | diff | R             | OS             |
 |---------------------------------------+------+---------------+----------------|
 | data.table-revdeps (this repo)        | yes  | release,devel | Monsoon=CentOS |
-| [[https://github.com/Rdatatable/data.table/blob/master/.dev/revdep.R]\]][revdep.R]]                              | ?    | local         | local          |
-| [[https://github.com/r-lib/revdepcheck]\]][revdepcheck]]                           | yes  | local         | local          |
+| [[https://github.com/Rdatatable/data.table/blob/master/.dev/revdep.R][revdep.R]]                              | ?    | local         | local          |
+| [[https://github.com/r-lib/revdepcheck][revdepcheck]]                           | yes  | local         | local          |
 | [[https://github.com/r-devel/recheck][recheck]]                               | no   | release       | ubuntu:latest  |
 | CRAN =tools::check_packages_in_dir()= | no   | devel         | debian:testing |
