@@ -1,6 +1,6 @@
 get_check_cmd <- function(pkg.tar.gz){
   paste(
-    "TERM=dumb",
+    "NO_COLOR=true", # for tinytest
     "_R_CHECK_TESTS_NLINES_=0",
     "_R_CHECK_FORCE_SUGGESTS_=0",
     R.home("bin/R"),
