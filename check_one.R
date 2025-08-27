@@ -71,6 +71,7 @@ library(data.table, lib.loc=R.home("library"))
 ## they started.
 if(nrow(sig.diff.dt)){
   dt.git <- file.path(task.dir, "data.table.git")
+  unlink(dt.git, recursive=TRUE, force=TRUE)
   system(paste("cd ~/R/data.table && git fetch --tags"))
   system(paste("git clone ~/R/data.table", dt.git))
   release.tag <- gsub(".tar.gz|.*_", "", cargs[["release"]])
