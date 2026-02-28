@@ -402,6 +402,15 @@ If they are really fixed, then please search for the corresponding [issue](https
 mytab(newly.fixed)
 ```
 
+## Did data.table master build succeed?
+
+If there is an error shown here, the build must be modified (typically build-time dependencies like litedown must be installed).
+
+```{r}
+build_lines <- readLines("build_dt.out")
+cat(build_lines, sep="\n")
+```
+
 ## `r plural(nrow(config.fail.first), "Configuration failure")`
 
 In the table below, the `failed` column shows which package failed to

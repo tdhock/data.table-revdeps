@@ -2,6 +2,7 @@ if(!requireNamespace("data.table"))install.packages("~/R/data.table",repo=NULL)
 if(!requireNamespace("nc"))install.packages("~/R/nc",repo=NULL)
 library(data.table)
 cran.url <- "http://cloud.r-project.org/"
+cran.url <- "file:///projects/genomic-ml/CRAN"
 options(repos=c(CRAN=cran.url))
 if(!requireNamespace("BiocManager"))install.packages("BiocManager")
 avail = available.packages(repos=BiocManager::repositories())
@@ -248,11 +249,14 @@ for(R.i in seq_along(R.vec)){
 
 ## Build vignettes and make sure conda env is activated so pandoc is
 ## available.
-if(!requireNamespace("markdown"))install.packages("markdown")
+if(!requireNamespace("litedown"))install.packages("litedown")
 master.build.cmd <- paste(
   "module load anaconda3 &&",
   "conda activate emacs1 &&",
-  R.home("bin/R"), "CMD build", dt.git.dir)
+  R.home("bin/R"),
+  "CMD build",
+  dt.git.dir,
+  "2>&1 | tee build_dt.out")
 unlink("data.table*tar.gz")
 system(master.build.cmd)
 master.old <- paste0("data.table_", master.version, ".tar.gz")

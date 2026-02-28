@@ -17,10 +17,15 @@ from github master, and optionally rebuilding R itself, then
 
 So that the job is run every day, there are two options
 
-- create a crontab entry which runs [[file:sbatch_params.sh][sbatch_params.sh]], which will ask
-  the cluster to run params.sh, which is generated in
-  https://github.com/tdhock/data.table-revdeps/blob/master/params.R#L319
-  (this is what we do currently).
+- create two crontab entries 
+  - midnight (=1 0 * * * ~/bin/rsync-CRAN-src-contrib.sh=), run
+    [[file:rsync-CRAN-src-contrib.sh]] on data transfer node (dtn2), which
+    downloads all CRAN source packages.
+  - 1am (=1 1 * * * ~/bin/sbatch_params.sh=), run [[file:sbatch_params.sh][sbatch_params.sh]] on
+    login node (wind), which will ask the cluster to run =params.sh=,
+    which is generated in
+    https://github.com/tdhock/data.table-revdeps/blob/master/params.R#L319
+    (this is what we do currently).
 - using sbatch with ~--begin=tomorrow~ at 00:01 to run [[file:params.R]]
   again, which will start the checks tomorrow (on a compute node, not
   done currently because we use the cron option above instead).

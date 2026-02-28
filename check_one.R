@@ -22,8 +22,9 @@ deps.df <- read.csv(cargs[["deps.csv"]])
 job.dir <- file.path(dirname(cargs[["deps.csv"]]), "tasks", task.id)
 setwd(task.dir)
 .libPaths()
-options(repos=c(#this should be in ~/.Rprofile too.
-  CRAN="http://cloud.r-project.org"))
+cran.url <- "file:///projects/genomic-ml/CRAN"
+#this should be in ~/.Rprofile too.
+options(repos=c(CRAN=cran.url))
 print(Sys.time())
 install.time <- system.time({
   install.packages(rev.dep, dep=TRUE)
