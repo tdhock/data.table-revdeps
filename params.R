@@ -1,9 +1,8 @@
 if(!requireNamespace("data.table"))install.packages("~/R/data.table",repo=NULL)
 if(!requireNamespace("nc"))install.packages("~/R/nc",repo=NULL)
 library(data.table)
-cran.url <- "http://cloud.r-project.org/"
-cran.url <- "file:///projects/genomic-ml/CRAN"
-options(repos=c(CRAN=cran.url))
+cran.url <- "http://cloud.r-project.org/"#for banner R version and source.
+options(repos=c(CRAN="file:///projects/genomic-ml/CRAN"))
 if(!requireNamespace("BiocManager"))install.packages("BiocManager")
 avail = available.packages(repos=BiocManager::repositories())
 all.deps = tools::package_dependencies(

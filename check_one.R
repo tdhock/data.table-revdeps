@@ -1,4 +1,4 @@
-cargs <- commandArgs(trailingOnly=TRUE)
+(cargs <- commandArgs(trailingOnly=TRUE))
 if(length(cargs)==0){
   ## before running interactively, make sure to start emacs/R with
   ## environment defined in /scratch/...check_one.sh, particularly
@@ -7,7 +7,7 @@ if(length(cargs)==0){
   base <- "/scratch/th798/data.table-revdeps/*"
   cargs <- c(
     Sys.glob(file.path(base,"deps.csv")),
-    "349",
+    "1349",
     Sys.glob(file.path(base, "data.table_release_*tar.gz")),
     Sys.glob(file.path(base, "data.table_master_*tar.gz"))
   )
@@ -22,7 +22,8 @@ deps.df <- read.csv(cargs[["deps.csv"]])
 job.dir <- file.path(dirname(cargs[["deps.csv"]]), "tasks", task.id)
 setwd(task.dir)
 .libPaths()
-cran.url <- "file:///projects/genomic-ml/CRAN"
+local.CRAN <- "/projects/genomic-ml/CRAN"
+cran.url <- paste0("file://", local.CRAN)
 #this should be in ~/.Rprofile too.
 options(repos=c(CRAN=cran.url))
 print(Sys.time())
@@ -32,13 +33,9 @@ install.time <- system.time({
 cat("Time to install revdep:\n")
 print(install.time)
 print(Sys.time())
-downloaded_packages <- file.path(
-  tempdir(),
-  "downloaded_packages")
-dl.glob <- file.path(
-  downloaded_packages,
-  paste0(rev.dep,"_*.tar.gz"))
-rev.dep.dl.row <- cbind(rev.dep, Sys.glob(dl.glob))
+pkg.glob <- file.path(
+  local.CRAN, "src", "contrib", paste0(rev.dep,"_*.tar.gz"))
+(rev.dep.dl.row <- cbind(rev.dep, Sys.glob(pkg.glob)))
 colnames(rev.dep.dl.row) <- c("pkg","path")
 rev.dep.release.tar.gz <- normalizePath(rev.dep.dl.row[,"path"], mustWork=TRUE)
 pkg.Rcheck <- paste0(rev.dep, ".Rcheck")
