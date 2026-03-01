@@ -276,7 +276,7 @@ file.copy(release.old, release.new, overwrite=TRUE)
 n.deps <- length(deps)
 ##n.deps <- 2
 task.id <- seq(1, n.deps)
-deps.dt <- data.table(Package=deps[task.id], task.id)
+deps.dt <- data.table(Package=deps, task.id, Version=avail[deps, "Version"])
 deps.csv <- file.path(scratch.dir, "deps.csv")
 data.table::fwrite(deps.dt, deps.csv)
 

@@ -7,7 +7,7 @@ if(length(cargs)==0){
   base <- "/scratch/th798/data.table-revdeps/*"
   cargs <- c(
     Sys.glob(file.path(base,"deps.csv")),
-    "1349",
+    "9",
     Sys.glob(file.path(base, "data.table_release_*tar.gz")),
     Sys.glob(file.path(base, "data.table_master_*tar.gz"))
   )
@@ -18,7 +18,8 @@ dput(cargs)
 if(requireNamespace("R.cache"))R.cache::getCachePath()
 task.id <- as.integer(cargs[["task.str"]])
 deps.df <- read.csv(cargs[["deps.csv"]])
-(rev.dep <- deps.df$Package[task.id])
+(deps.row <- deps.df[task.id,])
+(rev.dep <- deps.row$Package)
 job.dir <- file.path(dirname(cargs[["deps.csv"]]), "tasks", task.id)
 setwd(task.dir)
 .libPaths()
@@ -33,11 +34,9 @@ install.time <- system.time({
 cat("Time to install revdep:\n")
 print(install.time)
 print(Sys.time())
-pkg.glob <- file.path(
-  local.CRAN, "src", "contrib", paste0(rev.dep,"_*.tar.gz"))
-(rev.dep.dl.row <- cbind(rev.dep, Sys.glob(pkg.glob)))
-colnames(rev.dep.dl.row) <- c("pkg","path")
-rev.dep.release.tar.gz <- normalizePath(rev.dep.dl.row[,"path"], mustWork=TRUE)
+(pkg_Version.tar.gz <- paste0(rev.dep,"_", deps.row[,"Version"], ".tar.gz"))
+(pkg.tar.gz <- file.path(local.CRAN, "src", "contrib", pkg_Version.tar.gz))
+(rev.dep.release.tar.gz <- normalizePath(pkg.tar.gz, mustWork=TRUE))
 pkg.Rcheck <- paste0(rev.dep, ".Rcheck")
 
 proj.dir <- "~/genomic-ml/data.table-revdeps"
