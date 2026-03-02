@@ -3,8 +3,13 @@ if(!requireNamespace("nc"))install.packages("~/R/nc",repo=NULL)
 library(data.table)
 cran.url <- "http://cloud.r-project.org/"#for banner R version and source.
 options(repos=c(CRAN="file:///projects/genomic-ml/CRAN"))
-if(!requireNamespace("BiocManager"))install.packages("BiocManager")
-avail = available.packages(repos=BiocManager::repositories())
+bioc <- FALSE
+if(bioc){
+  if(!requireNamespace("BiocManager"))install.packages("BiocManager")
+  avail = available.packages(repos=BiocManager::repositories())
+}else{
+  avail = available.packages()
+}  
 all.deps = tools::package_dependencies(
   "data.table",
   db=avail,
@@ -17,7 +22,7 @@ bioc.deps <- intersect(from.bioc, all.deps)
 missing.dt <- nc::capture_all_str(
   "params.teeout",
   "there is no package called .",
-  dep='[^"]+?',
+  dep='[^"’]+?',
   ".\n")
 fwrite(unique(missing.dt),"missing.deps.csv")
 deps = tools::package_dependencies(
@@ -32,7 +37,7 @@ popular_deps.csv <- "~/genomic-ml/data.table-revdeps/popular_deps.csv"
 popular_deps <- fread(popular_deps.csv)
 (popular_deps <- data.table(dep=unique(c(
   popular_deps$dep,
-  bioc.deps,
+  if(bioc)bioc.deps,
   missing.dt$dep))))
 fwrite(popular_deps,popular_deps.csv)
 git.cmds <- paste(
@@ -184,20 +189,22 @@ for(R.i in seq_along(R.vec)){
     system(R.cmd)
   }
   if(rebuild.R){
-    ## first save popular packages.
-    base.rec.pkgs <- basename(c(
-      dirname(Sys.glob(file.path(
-        R.ver.path,"src","library","*","DESCRIPTION"))),
-      sub("[.]tgz$", "", Sys.glob(file.path(
-        R.ver.path,"src","library","Recommended","*.tgz")))
-    ))
-    already.installed <- dir(file.path(R.ver.path, "library"))
-    save.pkgs <- setdiff(already.installed,base.rec.pkgs)
-    pop.lib.vec <- file.path(R.ver.path,"library",save.pkgs)
-    library.save <- file.path(R.src.prefix, "library-save", version.lower)
-    dir.create(library.save, showWarnings = FALSE, recursive = TRUE)
-    pop.save.vec <- file.path(library.save,save.pkgs)
-    file.rename(pop.lib.vec, pop.save.vec)
+    save.popular <- FALSE
+    if(save.popular){
+      base.rec.pkgs <- basename(c(
+        dirname(Sys.glob(file.path(
+          R.ver.path,"src","library","*","DESCRIPTION"))),
+        sub("[.]tgz$", "", Sys.glob(file.path(
+          R.ver.path,"src","library","Recommended","*.tgz")))
+      ))
+      already.installed <- dir(file.path(R.ver.path, "library"))
+      save.pkgs <- setdiff(already.installed,base.rec.pkgs)
+      pop.lib.vec <- file.path(R.ver.path,"library",save.pkgs)
+      library.save <- file.path(R.src.prefix, "library-save", version.lower)
+      dir.create(library.save, showWarnings = FALSE, recursive = TRUE)
+      pop.save.vec <- file.path(library.save,save.pkgs)
+      file.rename(pop.lib.vec, pop.save.vec)
+    }
     ## Then delete old base R source.
     local.tar.gz <- file.path(R.src.prefix, R.tar.gz)
     unlink(local.tar.gz)
@@ -208,10 +215,10 @@ for(R.i in seq_along(R.vec)){
     cat(build.cmd,"\n")
     system(build.cmd)
     ## Then restore saved packages.
-    file.rename(pop.save.vec, pop.lib.vec)
+    if(save.popular)file.rename(pop.save.vec, pop.lib.vec)
     ## these packages need to be installed specially when R is first
     ## built, but do not need any special update.
-    R.e('install.packages("BiocManager")')#needed for popular deps from bioc.
+    if(bioc)R.e('install.packages("BiocManager")')#needed for popular deps from bioc.
   }
   if(FALSE){
     ## These are notes for installing some system libraries from source.
@@ -233,11 +240,10 @@ for(R.i in seq_along(R.vec)){
   R.e('install.packages("RODBC",configure.args="--with-odbc-manager=odbc")')
   ##R.e('install.packages("slam");install.packages("Rcplex",configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
   R.e('install.packages("slam");install.packages("~/R/Rcplex",repos=NULL,configure.args="--with-cplex-dir=/home/th798/cplex")')#conda install -c ibmdecisionoptimization cplex only installs python package, need to register on IBM web site, download/install cplex, then install.packages slam, then install packages Rcplex with configure args.
-  R.e(sprintf('%s;dep <- read.csv("missing.deps.csv")$dep;install.packages(dep)', options.repos.bioc))#not dep=TRUE since these are deps (not checked) of revdeps (which we check).
-  R.e(sprintf('%s;dep <- read.csv("%s")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %%in%% ins]);install.packages(some)', options.repos.bioc, popular_deps.csv))#not dep=TRUE since these are deps (not checked) of revdeps (which we check).
-  R.e(sprintf('%s;update.packages(ask=FALSE)', options.repos.bioc))
-  if(FALSE){
-    ## install deps from bioc now.
+  if(bioc){
+    R.e(sprintf('%s;dep <- read.csv("missing.deps.csv")$dep;install.packages(dep)', options.repos.bioc))#not dep=TRUE since these are deps (not checked) offset revdeps (which we check).
+    R.e(sprintf('%s;dep <- read.csv("%s")$dep;ins <- rownames(installed.packages());print(some <- dep[!dep %%in%% ins]);install.packages(some)', options.repos.bioc, popular_deps.csv))#not dep=TRUE since these are deps (not checked) of revdeps (which we check).
+    R.e(sprintf('%s;update.packages(ask=FALSE)', options.repos.bioc))
   }
   R.java.cmd <- paste(R, "CMD javareconf")
   system(R.java.cmd)
@@ -349,7 +355,7 @@ module unload R
   run_one_sh = file.path(scratch.dir, sprintf("run_one_%dGB.sh", array.mem.row$gigabytes))
   writeLines(run_one_contents, run_one_sh)
   cat(
-    "Try a test run:\nSLURM_ARRAY_TASK_ID=",
+    "Try a test run:\n",
     deps.dt[Package=="ShinyQuickStarter", task.id],
     " bash ", run_one_sh, "\n", sep="")
   sbatch.cmd <- paste("sbatch", run_one_sh)
