@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r Ropts, echo=FALSE}
-options(width=200)
+options(width=200, datatable.showProgress=FALSE)
 knitr::opts_chunk$set(
   echo=FALSE,
   results="asis")
