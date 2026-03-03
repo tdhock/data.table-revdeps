@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 
 ```{r results=TRUE}
 job.dir <- readLines("JOBDIR",n=1)
-
+##job.dir <- "/scratch/th798/data.table-revdeps/2026-03-02"
 plural <- function(number, singular){
   s <- ifelse(number==1, "", "s")
   sprintf("%d %s%s", number, singular, s)
@@ -32,7 +32,7 @@ PARAMS_ID.file <- file.path(job.dir, "PARAMS_ID")
 PARAMS_ID <- readLines(PARAMS_ID.file, n=1)
 JOBID.str <- paste(JOBID.vec, collapse=",")
 sacct.arg <- paste0("-j", JOBID.str)
-sacct.dt <- slurm::sacct(sacct.arg)
+sacct.dt <- slurm::sacct(sacct.arg)[order(task)]
 some.sacct <- sacct.dt[, .(
   task,
   check.time=Elapsed,

@@ -1,0 +1,144 @@
+
+R version 4.3.1 (2023-06-16) -- "Beagle Scouts"
+Copyright (C) 2023 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> install.packages("Rmpi",configure.args="--with-mpi=/packages/openmpi/4.1.8")
+checking for gcc... gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether the compiler supports GNU C... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to enable C11 features... none needed
+Trying to find mpi.h ...
+Found in /packages/openmpi/4.1.8/include
+Trying to find libmpi.so or libmpich.a ...
+Found libmpi in /packages/openmpi/4.1.8/lib
+checking for orted... yes
+checking for prted... no
+configure: creating ./config.status
+config.status: creating src/Makevars
+gcc -I"/home/th798/lib64/R/include" -DNDEBUG -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -I/packages/openmpi/4.1.8/include  -DMPI2 -DOPENMPI  -I/home/th798/.conda/envs/emacs1/include -I/home/th798/include    -fpic  -g -O2  -c Rmpi.c -o Rmpi.o
+gcc -I"/home/th798/lib64/R/include" -DNDEBUG -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -I/packages/openmpi/4.1.8/include  -DMPI2 -DOPENMPI  -I/home/th798/.conda/envs/emacs1/include -I/home/th798/include    -fpic  -g -O2  -c conversion.c -o conversion.o
+gcc -I"/home/th798/lib64/R/include" -DNDEBUG -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -I/packages/openmpi/4.1.8/include  -DMPI2 -DOPENMPI  -I/home/th798/.conda/envs/emacs1/include -I/home/th798/include    -fpic  -g -O2  -c internal.c -o internal.o
+gcc -shared -L/home/th798/.conda/envs/emacs1/lib -Wl,-rpath=/home/th798/.conda/envs/emacs1/lib -L/home/th798/lib -Wl,-rpath=/home/th798/lib -L/home/th798/lib64 -Wl,-rpath=/home/th798/lib64 -o Rmpi.so Rmpi.o conversion.o internal.o -L/packages/openmpi/4.1.8/lib -lmpi
+Loading required package: data.table
+Loading required package: data.table
+Loading required package: data.table
+--------------------------------------------------------------------------
+WARNING: An invalid value was given for btl_tcp_if_include.  This
+value will be ignored.
+
+  Local host: wind
+  Value:      ib0
+  Message:    Unknown interface name
+--------------------------------------------------------------------------
+[wind:1160091:0:1160091] Caught signal 11 (Segmentation fault: address not mapped to object at address (nil))
+==== backtrace (tid:1160091) ====
+ 0  /lib64/libucs.so.0(ucs_handle_error+0x2dc) [0x1475d161213c]
+ 1  /lib64/libucs.so.0(+0x2c31c) [0x1475d161231c]
+ 2  /lib64/libucs.so.0(+0x2c4ea) [0x1475d16124ea]
+ 3  /packages/openmpi/4.1.8/lib/libopen-pal.so.40(+0x538d7) [0x1475dcdbf8d7]
+ 4  /packages/openmpi/4.1.8/lib/libopen-pal.so.40(mca_base_var_register+0x27) [0x1475dcdc1477]
+ 5  /packages/openmpi/4.1.8/lib/libopen-pal.so.40(mca_base_framework_var_register+0x3a) [0x1475dcdc150a]
+ 6  /packages/openmpi/4.1.8/lib/libopen-pal.so.40(mca_base_framework_register+0x1c5) [0x1475dcdc7315]
+ 7  /packages/openmpi/4.1.8/lib/libopen-pal.so.40(mca_base_framework_open+0x11) [0x1475dcdc73c1]
+ 8  /packages/openmpi/4.1.8/lib/libopen-pal.so.40(mca_base_framework_components_open+0x16f) [0x1475dcdbd4ff]
+ 9  /packages/openmpi/4.1.8/lib/libmpi.so.40(+0xf0a87) [0x1475dd3d9a87]
+10  /packages/openmpi/4.1.8/lib/libopen-pal.so.40(mca_base_framework_open+0x81) [0x1475dcdc7431]
+11  /packages/openmpi/4.1.8/lib/libmpi.so.40(ompi_mpi_init+0x634) [0x1475dd3e6bc4]
+12  /packages/openmpi/4.1.8/lib/libmpi.so.40(MPI_Init+0x81) [0x1475dd36b561]
+13  /projects/genomic-ml/lib64/R/library/00LOCK-Rmpi/00new/Rmpi/libs/Rmpi.so(mpi_initialize+0x3f) [0x1475dd63a25f]
+14  /home/th798/lib64/R/bin/exec/R() [0x4a0182]
+15  /home/th798/lib64/R/bin/exec/R() [0x4a0605]
+16  /home/th798/lib64/R/bin/exec/R() [0x4d8021]
+17  /home/th798/lib64/R/bin/exec/R(Rf_eval+0x140) [0x4e9440]
+18  /home/th798/lib64/R/bin/exec/R() [0x4eb43f]
+19  /home/th798/lib64/R/bin/exec/R(Rf_applyClosure+0x175) [0x4ec235]
+20  /home/th798/lib64/R/bin/exec/R() [0x4e04f4]
+21  /home/th798/lib64/R/bin/exec/R(Rf_eval+0x140) [0x4e9440]
+22  /home/th798/lib64/R/bin/exec/R() [0x4e9ce0]
+23  /home/th798/lib64/R/bin/exec/R() [0x4ea108]
+24  /home/th798/lib64/R/bin/exec/R() [0x4df6f3]
+25  /home/th798/lib64/R/bin/exec/R(Rf_eval+0x140) [0x4e9440]
+26  /home/th798/lib64/R/bin/exec/R() [0x4e9ce0]
+27  /home/th798/lib64/R/bin/exec/R() [0x4ea108]
+28  /home/th798/lib64/R/bin/exec/R() [0x4df6f3]
+29  /home/th798/lib64/R/bin/exec/R(Rf_eval+0x140) [0x4e9440]
+30  /home/th798/lib64/R/bin/exec/R() [0x4e9ce0]
+31  /home/th798/lib64/R/bin/exec/R() [0x4ea108]
+32  /home/th798/lib64/R/bin/exec/R() [0x4df6f3]
+33  /home/th798/lib64/R/bin/exec/R(Rf_eval+0x140) [0x4e9440]
+34  /home/th798/lib64/R/bin/exec/R() [0x4e9ce0]
+35  /home/th798/lib64/R/bin/exec/R() [0x4ea108]
+36  /home/th798/lib64/R/bin/exec/R() [0x4df6f3]
+37  /home/th798/lib64/R/bin/exec/R(Rf_eval+0x140) [0x4e9440]
+38  /home/th798/lib64/R/bin/exec/R() [0x4eb43f]
+39  /home/th798/lib64/R/bin/exec/R(Rf_applyClosure+0x175) [0x4ec235]
+40  /home/th798/lib64/R/bin/exec/R() [0x4e04f4]
+41  /home/th798/lib64/R/bin/exec/R(Rf_eval+0x140) [0x4e9440]
+42  /home/th798/lib64/R/bin/exec/R() [0x4eb43f]
+43  /home/th798/lib64/R/bin/exec/R(Rf_applyClosure+0x175) [0x4ec235]
+44  /home/th798/lib64/R/bin/exec/R() [0x4e04f4]
+45  /home/th798/lib64/R/bin/exec/R(Rf_eval+0x140) [0x4e9440]
+46  /home/th798/lib64/R/bin/exec/R() [0x4eb43f]
+47  /home/th798/lib64/R/bin/exec/R(Rf_applyClosure+0x175) [0x4ec235]
+48  /home/th798/lib64/R/bin/exec/R() [0x4e04f4]
+49  /home/th798/lib64/R/bin/exec/R(Rf_eval+0x140) [0x4e9440]
+50  /home/th798/lib64/R/bin/exec/R() [0x4eb43f]
+51  /home/th798/lib64/R/bin/exec/R(Rf_applyClosure+0x175) [0x4ec235]
+52  /home/th798/lib64/R/bin/exec/R() [0x4e04f4]
+53  /home/th798/lib64/R/bin/exec/R(Rf_eval+0x140) [0x4e9440]
+54  /home/th798/lib64/R/bin/exec/R() [0x4eb43f]
+55  /home/th798/lib64/R/bin/exec/R(Rf_applyClosure+0x175) [0x4ec235]
+56  /home/th798/lib64/R/bin/exec/R() [0x4e04f4]
+57  /home/th798/lib64/R/bin/exec/R(Rf_eval+0x140) [0x4e9440]
+58  /home/th798/lib64/R/bin/exec/R() [0x4eb43f]
+59  /home/th798/lib64/R/bin/exec/R(Rf_applyClosure+0x175) [0x4ec235]
+60  /home/th798/lib64/R/bin/exec/R() [0x4e04f4]
+=================================
+
+ *** caught segfault ***
+address 0xa69b30011b39b, cause 'unknown'
+
+Traceback:
+ 1: fun(libname, pkgname)
+ 2: doTryCatch(return(expr), name, parentenv, handler)
+ 3: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 4: tryCatchList(expr, classes, parentenv, handlers)
+ 5: tryCatch(fun(libname, pkgname), error = identity)
+ 6: runHook(".onLoad", env, package.lib, package)
+ 7: loadNamespace(package, lib.loc)
+ 8: doTryCatch(return(expr), name, parentenv, handler)
+ 9: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+10: tryCatchList(expr, classes, parentenv, handlers)
+11: tryCatch({    attr(package, "LibPath") <- which.lib.loc    ns <- loadNamespace(package, lib.loc)    env <- attachNamespace(ns, pos = pos, deps, exclude, include.only)}, error = function(e) {    P <- if (!is.null(cc <- conditionCall(e)))         paste(" in", deparse(cc)[1L])    else ""    msg <- gettextf("package or namespace load failed for %s%s:\n %s",         sQuote(package), P, conditionMessage(e))    if (logical.return && !quietly)         message(paste("Error:", msg), domain = NA)    else stop(msg, call. = FALSE, domain = NA)})
+12: library(pkg_name, lib.loc = lib, character.only = TRUE, logical.return = TRUE)
+13: withCallingHandlers(expr, packageStartupMessage = function(c) tryInvokeRestart("muffleMessage"))
+14: suppressPackageStartupMessages(library(pkg_name, lib.loc = lib,     character.only = TRUE, logical.return = TRUE))
+15: doTryCatch(return(expr), name, parentenv, handler)
+16: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+17: tryCatchList(expr, classes, parentenv, handlers)
+18: tryCatch(expr, error = function(e) {    call <- conditionCall(e)    if (!is.null(call)) {        if (identical(call[[1L]], quote(doTryCatch)))             call <- sys.call(-4L)        dcall <- deparse(call, nlines = 1L)        prefix <- paste("Error in", dcall, ": ")        LONG <- 75L        sm <- strsplit(conditionMessage(e), "\n")[[1L]]        w <- 14L + nchar(dcall, type = "w") + nchar(sm[1L], type = "w")        if (is.na(w))             w <- 14L + nchar(dcall, type = "b") + nchar(sm[1L],                 type = "b")        if (w > LONG)             prefix <- paste0(prefix, "\n  ")    }    else prefix <- "Error : "    msg <- paste0(prefix, conditionMessage(e), "\n")    .Internal(seterrmessage(msg[1L]))    if (!silent && isTRUE(getOption("show.error.messages"))) {        cat(msg, file = outFile)        .Internal(printDeferredWarnings())    }    invisible(structure(msg, class = "try-error", condition = e))})
+19: try(suppressPackageStartupMessages(library(pkg_name, lib.loc = lib,     character.only = TRUE, logical.return = TRUE)))
+20: tools:::.test_load_package("Rmpi", "/projects/genomic-ml/lib64/R/library/00LOCK-Rmpi/00new")
+An irrecoverable exception occurred. R is aborting now ...
+> 
+> 

@@ -232,6 +232,7 @@ for(R.i in seq_along(R.vec)){
     ## OK ABOVE
     ##R.e('install.packages("symengine")')#mpfr installed but cant find, posted https://github.com/symengine/symengine.R/issues/119
   }
+  R.e('install.packages(c("data.table","nc"))')
   options.repos.bioc <- 'options(repos=c(if(requireNamespace("BiocManager"))BiocManager::repositories(),CRAN="http://cloud.r-project.org"))'
   ## These packages have special installation procedures, and there
   ## are not a lot of them, so we can run them for both R
@@ -252,14 +253,11 @@ for(R.i in seq_along(R.vec)){
   R.ver.vec[[R.dir]] <- R.ver.path
 }
 
-## Build vignettes and make sure conda env is activated so pandoc is
-## available.
-if(!requireNamespace("litedown"))install.packages("litedown")
 master.build.cmd <- paste(
   "module load anaconda3 &&",
   "conda activate emacs1 &&",
   R.home("bin/R"),
-  "CMD build",
+  "CMD build --no-build-vignettes",
   dt.git.dir,
   "2>&1 | tee build_dt.out")
 unlink("data.table*tar.gz")
@@ -355,7 +353,7 @@ module unload R
   run_one_sh = file.path(scratch.dir, sprintf("run_one_%dGB.sh", array.mem.row$gigabytes))
   writeLines(run_one_contents, run_one_sh)
   cat(
-    "Try a test run:\n",
+    "Try a test run:\nSLURM_ARRAY_TASK_ID=",
     deps.dt[Package=="ShinyQuickStarter", task.id],
     " bash ", run_one_sh, "\n", sep="")
   sbatch.cmd <- paste("sbatch", run_one_sh)
@@ -394,7 +392,7 @@ export USER=`whoami`
 . ~/.bashrc
 export
 cd ~/genomic-ml/data.table-revdeps
-", env.setup, " /packages/R/4.1.2/bin/R --no-save < ",
+", env.setup, " R --no-save < ",
 "params.R 2>&1 | tee params.teeout\n")
 params_sh <- "~/bin/params.sh"
 cat(params_sh_contents, file=params_sh)
