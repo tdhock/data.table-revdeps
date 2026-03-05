@@ -375,7 +375,7 @@ analyze_sh_contents = paste0("#!/bin/bash
 #SBATCH --error=analyze.out
 #SBATCH --depend=afterany:", JOBID.colon, "
 #SBATCH --job-name=analyze", today.str, "
-", env.setup, R.home("bin/R"), " --vanilla < ", analyze.R, "\n")
+", env.setup, " R --vanilla < ", analyze.R, "\n")
 cat(analyze_sh_contents, file="analyze.sh")
 system("sbatch analyze.sh")
 
