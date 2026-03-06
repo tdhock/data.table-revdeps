@@ -323,7 +323,7 @@ R.cmds <- paste(
   normalizePath("check_one.R", mustWork=TRUE))
 large_memory <- fread("large_memory.csv")
 array.mem.dt <- deps.dt[
-, gigabytes := ifelse(Package %in% large_memory$Package, 16, 4)
+, gigabytes := ifelse(Package %in% large_memory$Package, 32, 4)
 ][, {
   d <- diff(gigabytes)!=0
   is.start <- c(TRUE,d)
