@@ -1,7 +1,7 @@
 if(!requireNamespace("data.table"))install.packages("~/R/data.table",repo=NULL)
 if(!requireNamespace("nc"))install.packages("~/R/nc",repo=NULL)
 library(data.table)
-cran.url <- "http://cloud.r-project.org/"#for banner R version and source.
+cran.url <- "http://cloud.r-project.org/"#for banner R version and source.
 options(repos=c(CRAN="file:///projects/genomic-ml/CRAN"))
 bioc <- FALSE
 if(bioc){
@@ -9,7 +9,7 @@ if(bioc){
   avail = available.packages(repos=BiocManager::repositories())
 }else{
   avail = available.packages()
-}  
+}
 all.deps = tools::package_dependencies(
   "data.table",
   db=avail,
@@ -375,7 +375,7 @@ analyze_sh_contents = paste0("#!/bin/bash
 #SBATCH --error=analyze.out
 #SBATCH --depend=afterany:", JOBID.colon, "
 #SBATCH --job-name=analyze", today.str, "
-", env.setup, " R --vanilla < ", analyze.R, "\n")
+", env.setup, " R --vanilla < ", analyze.R, "\n")
 cat(analyze_sh_contents, file="analyze.sh")
 system("sbatch analyze.sh")
 
