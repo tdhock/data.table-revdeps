@@ -84,7 +84,7 @@ get.dl.table <- function(f){
     ),
     "'\nContent type 'application/x-gzip' length ",
     bytes="[0-9]+", as.integer)
-}  
+}
 also.dt <- nc::capture_first_glob(log.file.glob, log.pattern, READ=get.dl.table)
 myRound <- function(x){
   prettyNum(ceiling(x), big.mark=",")
@@ -339,9 +339,9 @@ time.dt <- nc::capture_first_vec(
   hours.only=digits.pattern, ":",
   minutes.only=digits.pattern, ":",
   seconds.only=digits.pattern
-)[,
-  minutes := hours.only*60 + minutes.only + seconds.only/60
-  ]
+)[
+, minutes := hours.only*60 + minutes.only + seconds.only/60
+][]
 time.wide <- dcast(
   time.dt,
   . ~ .,
@@ -406,7 +406,7 @@ mytab(newly.fixed)
 
 If there is an error shown here, the build must be modified (typically build-time dependencies like litedown must be installed).
 
-```{r}
+```{r results=TRUE}
 build_lines <- readLines("build_dt.out")
 cat(build_lines, sep="\n")
 ```
@@ -474,41 +474,6 @@ If any have State `OUT_OF_MEMORY` then either
 * or if it is already listed there, then increase the `gigabytes`
   value in `array.mem.dt` in
   [params.R](https://github.com/tdhock/data.table-revdeps/blob/master/params.R).
-
-## Most installed packages
-
-These are the top 10 packages which appeared in "also installing the
-dependencies..." in the logs, in terms of total download bandwidth,
-and number of times downloaded. Packages in this table should be
-considered for inclusion in
-[popular_deps.csv](https://github.com/tdhock/data.table-revdeps/blob/master/popular_deps.csv),
-which is the list of packages that are installed to the shared
-library, prior to launching the check jobs (each of which has its own
-job-specific library where packages are installed if they are not
-present in the shared library).
-
-```{r}
-knitr::kable(also.counts[1:min(10,.N)], align="r")
-```
-
-```{r}
-knitr::kable(also.counts[order(-downloads)][1:min(10,.N)], align="r")
-```
-
-## Installed packages from Bioconductor
-
-These are the Bioconductor packages which appeared in "also installing the
-dependencies..." in the logs. Packages in this table should be
-considered for inclusion in
-[popular_deps.csv](https://github.com/tdhock/data.table-revdeps/blob/master/popular_deps.csv),
-which is the list of packages that are installed to the shared
-library, prior to launching the check jobs (each of which has its own
-job-specific library where packages are installed if they are not
-present in the shared library).
-
-```{r}
-knitr::kable(bioc.counts, align="r")
-```
 
 ## Full list of jobs
 
