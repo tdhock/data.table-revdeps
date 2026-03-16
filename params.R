@@ -144,6 +144,8 @@ for(R.i in seq_along(R.vec)){
     FALSE
   }else if(version.lower=="devel"){
     TRUE
+  }else if(!file.exists(R)){
+    TRUE
   }else{
     R.version.lines <- system(paste(R, "--version"), intern=TRUE)
     installed.R.vers <- nc::capture_all_str(
