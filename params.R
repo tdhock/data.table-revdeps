@@ -340,6 +340,8 @@ array.mem.dt <- deps.dt[
   array=paste(indices,collapse=","),
   job=NA_character_
 ), by=gigabytes]
+JOBID.file <- file.path(scratch.dir, "JOBID")
+unlink(JOBID.file)
 for(array.mem.i in 1:nrow(array.mem.dt)){
   array.mem.row <- array.mem.dt[array.mem.i]
   run_one_contents = paste0("#!/bin/bash
@@ -362,7 +364,7 @@ module unload R
   sbatch.out <- system(sbatch.cmd, intern=TRUE)
   JOBID <- gsub("[^0-9]", "", sbatch.out)
   array.mem.dt[array.mem.i, job := JOBID]
-  cat(JOBID, "\n", file=file.path(scratch.dir, "JOBID"), append=TRUE)
+  cat(JOBID, "\n", file=JOBID.file, append=TRUE)
 }
 
 cat(Sys.getenv("SLURM_JOB_ID"), "\n", file=file.path(scratch.dir, "PARAMS_ID"))
