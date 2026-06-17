@@ -44,24 +44,13 @@ dt.tar.gz.vec <- Sys.glob(file.path(job.dir, "*.tar.gz"))
 dt.version.vec <- gsub(".tar.gz$|.*data.table_", "", dt.tar.gz.vec)
 
 ## Read all logs.
-if(FALSE){
-  log.file.glob <- "analyze/2024-02-20/*.txt"
-  log.pattern <- list(
-    log.txt=list(
-      "analyze/",
-      date=".*?",
-      "/",
-      checked=".*?",
-      ".txt"))
-}else{
-  log.file.glob <- file.path(
-    job.dir, "packages", "*", "log.txt")
-  log.pattern <- list(
-    log.txt=list(
-      ".*/",
-      checked=".*?",
-      "/log.txt"))
-}
+log.file.glob <- file.path(
+  job.dir, "packages", "*", "log.txt")
+log.pattern <- list(
+  log.txt=list(
+    ".*/",
+    checked=".*?",
+    "/log.txt"))
 get.dl.table <- function(f){
   also.dl <- nc::capture_all_str(
     f,
@@ -106,9 +95,6 @@ also.counts <- also.dt[!is.na(Package), .(
   megabytes=NULL
 )][]
 bioc.counts <- also.counts[grepl("bioconductor.org", repos)]
-if(FALSE){
-  data.table::fwrite(bioc.counts, "popular_deps.csv", append=TRUE)
-}
 
 ## Read R versions, which should have been written to job.dir by params.R.
 R.versions <- sapply(c("devel","release"), function(v.lo){
@@ -147,29 +133,6 @@ setkeyv(sig.diff.dt, sig.cols)
 deps.sacct[, sig.diffs := NA_integer_]
 deps.sacct[sig.diff.dt, sig.diffs := .N, by=Package, on=.(Package)]
 deps.sacct[is.na(sig.diffs), sig.diffs := 0]
-
-if(FALSE){#TODO need to copy files from /tmp or do this in each task.
-  ## add number of missing check logs.
-  check.file.glob <- file.path(
-    job.dir, "packages", "*", "*", "*", "00check.log")
-  check.file.vec <- Sys.glob(check.file.glob)
-  check.file.meta <- nc::capture_first_vec(
-    check.file.vec,
-    check.log=list(
-      Rversion.pattern,
-      dt.version=".*?",
-      "/00check.log"))
-  CJ.args <- lapply(check.file.meta[, .(Rversion, dt.version)], unique)
-  CJ.args$Package <- deps.dt$Package
-  select.dt <- do.call(CJ, CJ.args)
-  expected.checks <- check.file.meta[select.dt, on=names(select.dt)]
-  expected.checks[, dt.vers := sub("_.*", "", dt.version)]
-  expected.checks[, log.txt := file.path(job.dir, "packages", Package, "log.txt")]
-  missing.logs <- expected.checks[is.na(check.log)]
-  deps.sacct[, no.log := NA_integer_]
-  deps.sacct[missing.logs, no.log := .N, by=Package, on=.(Package)]
-  deps.sacct[is.na(no.log), no.log := 0]
-}
 
 ## report versions used.
 pvers <- function(what, ver.vec){
@@ -229,10 +192,13 @@ config.fail.vec <- suppressWarnings({
 deps.sacct[, config.fail := 0L]
 if(length(config.fail.vec)){
   config.fail.uniq <- unique(config.fail.vec)
+  writeLines(config.fail.uniq, "analyze-grep-fail-uniq.log")
   config.fail.dt <- nc::capture_first_vec(
     config.fail.uniq,
     log.pattern,
-    ":ERROR: ",
+    ":",
+    ".*?",# for https://github.com/tdhock/data.table-revdeps/issues/47
+    "ERROR: ",
     action=".*?",
     " failed for package '",
     failed=".*?",

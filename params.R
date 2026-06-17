@@ -111,11 +111,13 @@ tomorrow <- now+60*60*24
 today.str <- strftime(now, "%Y-%m-%d")
 tomorrow.str <- strftime(tomorrow, "%Y-%m-%d")
 USER <- Sys.getenv("USER")
-scratch.dir <- file.path(
+scratch.revdeps <- file.path(
   "/scratch",
   USER,
-  "data.table-revdeps",
-  today.str)
+  "data.table-revdeps")
+## delete any previous work.
+unlink(file.path(scratch.revdeps, "*"), recursive=TRUE)
+scratch.dir <- file.path(scratch.revdeps, today.str)
 writeLines(scratch.dir, "JOBDIR")
 dir.create(scratch.dir, showWarnings = FALSE, recursive = TRUE)
 R.src.prefix <- "~/R"
