@@ -91,11 +91,11 @@ conda.pkgs <- c(
 ## some libraries are installed under $HOME (openssl), some using
 ## module system (gdal), and most others via conda.
 build.modules <- c(
-  sf="gdal/3.3.1",
+  sf="gdal",#previously /3.3.1 now /3.12.2 as of Aug 2026
   runjags="jags",
   Rmpi="openmpi",
-  "anaconda3",
-  Rfast="gcc")
+  "miniforge3") #prev "anaconda3",
+  ##  Rfast="gcc") #no longer exists
 load.vec <- paste("module load", build.modules, "&&")
 load.str <- paste(load.vec, collapse=" ")
 (env.setup <- paste(load.str, "conda activate emacs1 &&"))
